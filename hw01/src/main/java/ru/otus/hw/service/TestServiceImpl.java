@@ -2,6 +2,7 @@ package ru.otus.hw.service;
 
 import lombok.RequiredArgsConstructor;
 import ru.otus.hw.dao.QuestionDao;
+import ru.otus.hw.domain.Answer;
 import ru.otus.hw.domain.Question;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class TestServiceImpl implements TestService {
 
         questions.forEach((question) -> {
             ioService.printLine(question.text());
-            question.answers().stream().map((answer) -> answer.text()).forEach(ioService::printLine);
+            question.answers().stream().map(Answer::text).forEach(ioService::printLine);
         });
 
 
