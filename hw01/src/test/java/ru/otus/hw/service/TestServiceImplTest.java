@@ -10,10 +10,10 @@ import static org.mockito.Mockito.*;
 
 public class TestServiceImplTest {
 
-    private IOService ioService = Mockito.mock(IOService.class);
+    private final IOService ioService = Mockito.mock(IOService.class);
 
 
-    private QuestionDao questionDao = Mockito.mock(QuestionDao.class);
+    private final QuestionDao questionDao = Mockito.mock(QuestionDao.class);
 
 
     private TestService testService;

@@ -32,13 +32,12 @@ public class CsvQuestionDao implements QuestionDao {
 
     @Override
     public List<Question> findAll() {
-        List<Question> questions = new CsvToBeanBuilder<QuestionDto>(new InputStreamReader(inputStream))
+        return new CsvToBeanBuilder<QuestionDto>(new InputStreamReader(inputStream))
                 .withSkipLines(1)
                 .withType(QuestionDto.class)
                 .withSeparator(';')
                 .build().parse()
                 .stream().map(QuestionDto::toDomainObject)
                 .toList();
-        return questions;
     }
 }
