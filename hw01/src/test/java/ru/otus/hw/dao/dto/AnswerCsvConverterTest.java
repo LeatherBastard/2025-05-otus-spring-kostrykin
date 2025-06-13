@@ -8,7 +8,7 @@ import ru.otus.hw.domain.Answer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AnswerCsvConverterTest {
+class AnswerCsvConverterTest {
 
     private AnswerCsvConverter converter;
 

@@ -8,7 +8,7 @@ import ru.otus.hw.dao.QuestionDao;
 
 import static org.mockito.Mockito.*;
 
-public class TestServiceImplTest {
+class TestServiceImplTest {
 
     private final IOService ioService = Mockito.mock(IOService.class);
 
