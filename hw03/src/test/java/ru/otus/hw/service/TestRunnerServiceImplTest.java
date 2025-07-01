@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.springframework.boot.CommandLineRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
@@ -15,15 +16,15 @@ class TestRunnerServiceImplTest {
 
     private final ResultService resultService = Mockito.mock(ResultService.class);
 
-    private TestRunnerService testRunnerService;
+    private CommandLineRunner testRunnerService;
 
     @BeforeEach
     void initialize() {
-        testRunnerService = new TestRunnerServiceImpl(testService, studentService, resultService);
+        testRunnerService = new CommandLineRunnerImpl(testService, studentService, resultService);
     }
 
     @Test
-    void whenRun_thenSuccessful() {
+    void whenRun_thenSuccessful() throws Exception {
         testRunnerService.run();
         InOrder order = inOrder(studentService, testService, resultService);
         order.verify(studentService).determineCurrentStudent();
