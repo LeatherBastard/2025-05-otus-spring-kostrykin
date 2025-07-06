@@ -9,7 +9,6 @@ import ru.otus.hw.config.AppProperties;
 @SpringBootApplication
 @EnableConfigurationProperties(AppProperties.class)
 public class Application {
-    AbstractAutowireCapableBeanFactory
     public static void main(String[] args) {
         SpringApplication.run(Application.class);
     }
