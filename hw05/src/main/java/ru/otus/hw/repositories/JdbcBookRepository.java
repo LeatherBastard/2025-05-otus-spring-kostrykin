@@ -119,6 +119,7 @@ public class JdbcBookRepository implements BookRepository {
             for (Book book : booksWithoutGenres) {
                 if (book.getId() == bookId) {
                     foundBook = book;
+                    break;
                 }
             }
             long genreId = (int) bookGenreRelation.genreId;
@@ -126,6 +127,7 @@ public class JdbcBookRepository implements BookRepository {
             for (Genre genre : genres) {
                 if (genre.getId() == genreId) {
                     foundGenre = genre;
+                    break;
                 }
             }
             if (foundBook != null && foundGenre != null) {
