@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Repository
@@ -28,6 +30,8 @@ import java.util.Set;
 public class JdbcBookRepository implements BookRepository {
 
     private static final String BOOK_BY_ID_NOT_FOUND = "Book with id %d not found";
+
+    private static final String BOOK_AMBIGUOUS_RESULT = "There is more than one result by id %d";
 
     private final NamedParameterJdbcOperations jdbcOperations;
 
@@ -37,28 +41,33 @@ public class JdbcBookRepository implements BookRepository {
     @Override
     public Optional<Book> findById(long id) {
         Map<String, Object> params = Map.of("id", id);
-        Optional<Book> optionalBook = Optional.ofNullable(
+        List<Book> books =
                 jdbcOperations.query("SELECT books.id,title,author_id, full_name FROM books " +
                                 "JOIN authors ON books.author_id=authors.id WHERE books.id= :id;",
                         params,
-                        new BookResultSetExtractor()));
-
-        if (optionalBook.isPresent()) {
-            Set<Long> bookGenres = getAllGenreIdsByBook(optionalBook.get().getId());
-            List<Genre> genres = genreRepository.findAllByIds(bookGenres);
-            optionalBook.get().setGenres(genres);
+                        new BookResultSetExtractor());
+        if (books.isEmpty()) {
+            return Optional.empty();
         }
 
-        return optionalBook;
+        Book book = books.get(0);
+        Set<Long> bookGenres = getAllGenreIdsByBook(book.getId());
+        List<Genre> genres = genreRepository.findAllByIds(bookGenres);
+        book.setGenres(genres);
+
+
+        return Optional.of(book);
     }
 
     @Override
     public List<Book> findAll() {
-        var genres = genreRepository.findAll();
+        var books = getAllBooksWithoutGenres().stream()
+                .collect(Collectors.toMap(Book::getId, Function.identity()));
+        var genres = genreRepository.findAll().stream()
+                .collect(Collectors.toMap(Genre::getId, Function.identity()));
         var relations = getAllGenreRelations();
-        var books = getAllBooksWithoutGenres();
         mergeBooksInfo(books, genres, relations);
-        return books;
+        return books.values().stream().toList();
     }
 
     @Override
@@ -72,12 +81,7 @@ public class JdbcBookRepository implements BookRepository {
     @Override
     public void deleteById(long id) {
         Map<String, Object> params = Map.of("book_id", id);
-        int updatedRecords = jdbcOperations.update("DELETE FROM books WHERE id=:book_id", params);
-
-        if (updatedRecords == 0) {
-            throw new EntityNotFoundException(String.format(BOOK_BY_ID_NOT_FOUND, id));
-        }
-        //...
+        jdbcOperations.update("DELETE FROM books WHERE id=:book_id", params);
     }
 
     private List<Book> getAllBooksWithoutGenres() {
@@ -111,31 +115,17 @@ public class JdbcBookRepository implements BookRepository {
         });
     }
 
-    private void mergeBooksInfo(List<Book> booksWithoutGenres, List<Genre> genres,
+    private void mergeBooksInfo(Map<Long, Book> booksWithoutGenres, Map<Long, Genre> genres,
                                 List<BookGenreRelation> relations) {
         for (BookGenreRelation bookGenreRelation : relations) {
             long bookId = (int) bookGenreRelation.bookId;
-            Book foundBook = null;
-            for (Book book : booksWithoutGenres) {
-                if (book.getId() == bookId) {
-                    foundBook = book;
-                    break;
-                }
-            }
+            Book foundBook = booksWithoutGenres.get(bookId);
             long genreId = (int) bookGenreRelation.genreId;
-            Genre foundGenre = null;
-            for (Genre genre : genres) {
-                if (genre.getId() == genreId) {
-                    foundGenre = genre;
-                    break;
-                }
-            }
-            if (foundBook != null && foundGenre != null) {
-                foundBook.getGenres().add(foundGenre);
-            }
+            Genre foundGenre = genres.get(genreId);
+            foundBook.getGenres().add(foundGenre);
         }
-        // Добавить книгам (booksWithoutGenres) жанры (genres) в соответствии со связями (relations)
     }
+
 
     private Book insert(Book book) {
         var keyHolder = new GeneratedKeyHolder();
@@ -181,11 +171,8 @@ public class JdbcBookRepository implements BookRepository {
 
     private void removeGenresRelationsFor(Book book) {
         Map<String, Object> params = Map.of("book_id", book.getId());
-        int updatedRecords = jdbcOperations.update("DELETE FROM books_genres WHERE book_id=:book_id", params);
-        if (updatedRecords == 0) {
-            throw new EntityNotFoundException(String.format(BOOK_BY_ID_NOT_FOUND, book.getId()));
-        }
-        //...
+        jdbcOperations.update("DELETE FROM books_genres WHERE book_id=:book_id", params);
+
     }
 
     private static class BookRowMapper implements RowMapper<Book> {
@@ -203,17 +190,19 @@ public class JdbcBookRepository implements BookRepository {
     // Использовать для findById
     @SuppressWarnings("ClassCanBeRecord")
     @RequiredArgsConstructor
-    private static class BookResultSetExtractor implements ResultSetExtractor<Book> {
+    private static class BookResultSetExtractor implements ResultSetExtractor<List<Book>> {
 
         @Override
-        public Book extractData(ResultSet rs) throws SQLException, DataAccessException {
-            if (rs.next()) {
-                return new Book(rs.getLong("id")
+        public List<Book> extractData(ResultSet rs) throws SQLException, DataAccessException {
+            List<Book> books = new ArrayList<>();
+            while (rs.next()) {
+                Book book = new Book(rs.getLong("id")
                         , rs.getString("title")
                         , new Author(rs.getLong("author_id"), rs.getString("full_name"))
-                        , null);
+                        , new ArrayList<>());
+                books.add(book);
             }
-            return null;
+            return books;
         }
     }
 
