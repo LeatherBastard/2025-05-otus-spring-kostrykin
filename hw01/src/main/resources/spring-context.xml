@@ -24,7 +24,7 @@
         <constructor-arg ref="questionDao"/>
     </bean>
 
-    <bean id="testRunnerService" class="ru.otus.hw.service.TestRunnerServiceImpl">
+    <bean id="testRunnerService" class="ru.otus.hw.service.CommandLineRunnerImpl">
         <constructor-arg ref="testService"/>
     </bean>
 </beans>
