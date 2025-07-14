@@ -16,6 +16,7 @@ import ru.otus.hw.models.Genre;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,20 +43,16 @@ public class JdbcBookRepository implements BookRepository {
     public Optional<Book> findById(long id) {
         Map<String, Object> params = Map.of("id", id);
         List<Book> books =
-                jdbcOperations.query("SELECT books.id,title,author_id, full_name FROM books " +
-                                "JOIN authors ON books.author_id=authors.id WHERE books.id= :id;",
+                jdbcOperations.query("SELECT books.id,title,author_id, full_name,genre_id,name FROM books " +
+                                "JOIN authors ON books.author_id=authors.id " +
+                                "JOIN books_genres ON books.id=books_genres.book_id " +
+                                "JOIN genres ON genre_id=genres.id WHERE books.id= :id;",
                         params,
                         new BookResultSetExtractor());
         if (books.isEmpty()) {
             return Optional.empty();
         }
-
         Book book = books.get(0);
-        Set<Long> bookGenres = getAllGenreIdsByBook(book.getId());
-        List<Genre> genres = genreRepository.findAllByIds(bookGenres);
-        book.setGenres(genres);
-
-
         return Optional.of(book);
     }
 
@@ -191,18 +188,23 @@ public class JdbcBookRepository implements BookRepository {
     @SuppressWarnings("ClassCanBeRecord")
     @RequiredArgsConstructor
     private static class BookResultSetExtractor implements ResultSetExtractor<List<Book>> {
-
         @Override
         public List<Book> extractData(ResultSet rs) throws SQLException, DataAccessException {
-            List<Book> books = new ArrayList<>();
+            Map<Long, Book> books = new HashMap<>();
             while (rs.next()) {
                 Book book = new Book(rs.getLong("id")
                         , rs.getString("title")
                         , new Author(rs.getLong("author_id"), rs.getString("full_name"))
                         , new ArrayList<>());
-                books.add(book);
+                Genre genre = new Genre(rs.getLong("genre_id"), rs.getString("name"));
+                if (!books.containsKey(book.getId())) {
+                    book.getGenres().add(genre);
+                    books.put(book.getId(), book);
+                } else {
+                    books.get(book.getId()).getGenres().add(genre);
+                }
             }
-            return books;
+            return books.values().stream().toList();
         }
     }
 
