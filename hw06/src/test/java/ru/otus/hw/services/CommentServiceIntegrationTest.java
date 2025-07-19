@@ -7,8 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.otus.hw.converters.BookConverter;
-import ru.otus.hw.dto.BookDto;
+import ru.otus.hw.converters.CommentConverter;
+import ru.otus.hw.dto.CommentDto;
 
 import java.util.List;
 
@@ -18,27 +18,30 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 @SpringBootTest
 @Transactional(propagation = Propagation.NEVER)
 @RequiredArgsConstructor
-class BookServiceIntegrationTest {
+class CommentServiceIntegrationTest {
+
     private static final long BOOK_ID = 3L;
 
-    @Autowired
-    private BookService bookService;
+    private static final long COMMENT_ID = 1L;
 
     @Autowired
-    private BookConverter bookConverter;
+    private CommentService commentService;
+
+    @Autowired
+    private CommentConverter commentConverter;
 
     @Test
     void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindById() {
-        BookDto bookDto = bookService.findById(BOOK_ID).get();
-        assertDoesNotThrow(() -> bookConverter.bookToString(bookDto));
-
+        CommentDto commentDto = commentService.findById(COMMENT_ID).get();
+        assertDoesNotThrow(() -> commentConverter.commentToString(commentDto));
     }
 
     @Test
-    void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindAll() {
-        List<BookDto> books = bookService.findAll();
-        assertDoesNotThrow(() -> books.stream().map(bookConverter::bookToString));
+    void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindAllByBookId() {
+        List<CommentDto> books = commentService.findAllByBookId(BOOK_ID);
+        assertDoesNotThrow(() -> books.stream().map(commentConverter::commentToString));
 
     }
+
 
 }

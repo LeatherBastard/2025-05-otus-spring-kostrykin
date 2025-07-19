@@ -37,7 +37,7 @@ class JpaBookRepositoryTest {
 
     @Test
     void shouldFindExpectedBookById() {
-        Book actualBook = bookRepository.findById(BOOK_ID);
+        Book actualBook = bookRepository.findById(BOOK_ID).get();
         Book expectedBook = em.find(Book.class, BOOK_ID);
         assertThat(actualBook).usingRecursiveComparison().isEqualTo(expectedBook);
 
@@ -58,7 +58,7 @@ class JpaBookRepositoryTest {
         Book book2 = em.find(Book.class, SECOND_BOOK_ID);
         assertThat(book2).isNotNull();
         bookRepository.deleteById(SECOND_BOOK_ID);
-        em.clear();
+        em.flush();
         book2 = em.find(Book.class, SECOND_BOOK_ID);
         assertThat(book2).isNull();
     }
@@ -67,7 +67,7 @@ class JpaBookRepositoryTest {
     void shouldSaveBook() {
         Book book = new Book(0,
                 "Book",
-                authorRepository.findById(1),
+                authorRepository.findById(1).get(),
                 genreRepository.findAll(),
                 new ArrayList<>());
         bookRepository.save(book);

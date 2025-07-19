@@ -1,14 +1,15 @@
 package ru.otus.hw.repositories;
 
+import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.otus.hw.models.Book;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -18,15 +19,18 @@ public class JpaBookRepository implements BookRepository {
     @PersistenceContext
     private final EntityManager entityManager;
 
+    @org.springframework.data.jpa.repository.EntityGraph(value = "book-entity-graph")
     @Override
-    public Book findById(long id) {
-        return entityManager.find(Book.class, id);
+    public Optional<Book> findById(long id) {
+        return Optional.ofNullable(entityManager.find(Book.class, id));
     }
 
     @Override
     public List<Book> findAll() {
+        EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-graph");
         TypedQuery<Book> query = entityManager
-                .createQuery("select b from Book b left join fetch b.author", Book.class);
+                .createQuery("select b from Book b", Book.class);
+        query.setHint("javax.persistence.fetchgraph", entityGraph);
         return query.getResultList();
     }
 
@@ -41,11 +45,10 @@ public class JpaBookRepository implements BookRepository {
 
     @Override
     public void deleteById(long id) {
-        Query query = entityManager.createQuery("delete " +
-                "from Book b " +
-                "where b.id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+        Book book = entityManager.find(Book.class, id);
+        if (book != null) {
+            entityManager.remove(book);
+        }
     }
 
 }

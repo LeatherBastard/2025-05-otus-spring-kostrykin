@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.CommentConverter;
 import ru.otus.hw.dto.CommentDto;
+import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Comment;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.CommentRepository;
@@ -25,10 +26,10 @@ public class CommentServiceImpl implements CommentService {
     @Transactional(readOnly = true)
     @Override
     public Optional<CommentDto> findById(long id) {
-        Comment comment = commentRepository.findById(id);
+        var comment = commentRepository.findById(id);
         CommentDto commentDto = null;
-        if (comment != null) {
-            commentDto = commentConverter.commentToDto(comment);
+        if (comment.isPresent()) {
+            commentDto = commentConverter.commentToDto(comment.get());
         }
         return Optional.ofNullable(commentDto);
     }
@@ -42,24 +43,30 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     @Override
     public CommentDto insert(long bookId, String text) {
-        return commentConverter.commentToDto(save(0, bookId, text));
+        var book = bookRepository.findById(bookId);
+        if (book.isEmpty()) {
+            throw new EntityNotFoundException("Book with id %s not found".formatted(bookId));
+        }
+        var comment = new Comment(0, book.get(), text);
+        return commentConverter.commentToDto(comment);
     }
 
     @Transactional
     @Override
-    public CommentDto update(long id, long bookId, String text) {
-        return commentConverter.commentToDto(save(id, bookId, text));
+    public CommentDto update(long id, String text) {
+
+        var updateComment = commentRepository.findById(id);
+        if (updateComment.isEmpty()) {
+            throw new EntityNotFoundException("Comment with id %s not found".formatted(id));
+        }
+        Comment comment = updateComment.get();
+        comment.setText(text);
+        return commentConverter.commentToDto(commentRepository.save(comment));
     }
 
     @Transactional
     @Override
     public void deleteById(long id) {
         commentRepository.deleteById(id);
-    }
-
-    private Comment save(long id, long bookId, String text) {
-        var book = bookRepository.findById(bookId);
-        var comment = new Comment(id, book, text);
-        return commentRepository.save(comment);
     }
 }

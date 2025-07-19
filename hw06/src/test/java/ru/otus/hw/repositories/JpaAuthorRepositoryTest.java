@@ -27,7 +27,7 @@ class JpaAuthorRepositoryTest {
 
     @Test
     void shouldFindExpectedAuthorById() {
-        Author actualAuthor = authorRepository.findById(AUTHOR_ID);
+        Author actualAuthor = authorRepository.findById(AUTHOR_ID).get();
         Author expectedAuthor = em.find(Author.class, AUTHOR_ID);
         assertThat(actualAuthor).usingRecursiveComparison().isEqualTo(expectedAuthor);
 

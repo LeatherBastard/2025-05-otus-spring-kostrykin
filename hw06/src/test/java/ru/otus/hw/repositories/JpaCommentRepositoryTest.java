@@ -33,7 +33,7 @@ class JpaCommentRepositoryTest {
 
     @Test
     void shouldFindExpectedCommentById() {
-        Comment actualComment = commentRepository.findById(COMMENT_ID);
+        Comment actualComment = commentRepository.findById(COMMENT_ID).get();
         Comment expectedComment = em.find(Comment.class, COMMENT_ID);
         assertThat(actualComment).usingRecursiveComparison().isEqualTo(expectedComment);
     }
@@ -51,14 +51,14 @@ class JpaCommentRepositoryTest {
         Comment comment = em.find(Comment.class, COMMENT_ID);
         assertThat(comment).isNotNull();
         commentRepository.deleteById(COMMENT_ID);
-        em.clear();
+        em.flush();
         comment = em.find(Comment.class, COMMENT_ID);
         assertThat(comment).isNull();
     }
 
     @Test
     void shouldSaveComment() {
-        Comment comment = new Comment(0, bookRepository.findById(1), "Some comment");
+        Comment comment = new Comment(0, bookRepository.findById(1).get(), "Some comment");
         commentRepository.save(comment);
         em.clear();
         Comment actualComment = em.find(Comment.class, FIFTH_COMMENT_ID);
