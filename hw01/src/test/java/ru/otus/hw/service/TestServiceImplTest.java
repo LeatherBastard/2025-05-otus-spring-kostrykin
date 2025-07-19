@@ -4,7 +4,7 @@ package ru.otus.hw.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import ru.otus.hw.dao.QuestionDao;
+import ru.otus.hw.dto.QuestionDao;
 
 import static org.mockito.Mockito.*;
 

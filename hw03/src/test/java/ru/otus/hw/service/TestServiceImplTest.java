@@ -4,10 +4,10 @@ package ru.otus.hw.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import ru.otus.hw.dao.QuestionDao;
 import ru.otus.hw.domain.Answer;
 import ru.otus.hw.domain.Question;
 import ru.otus.hw.domain.Student;
+import ru.otus.hw.dto.QuestionDao;
 
 import java.util.List;
 
