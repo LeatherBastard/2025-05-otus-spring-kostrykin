@@ -3,20 +3,22 @@ package ru.otus.hw.services;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.CommentConverter;
 import ru.otus.hw.dto.CommentDto;
+import ru.otus.hw.repositories.JpaBookRepository;
+import ru.otus.hw.repositories.JpaCommentRepository;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-@ActiveProfiles("test")
-@SpringBootTest
+@DataJpaTest
 @Transactional(propagation = Propagation.NEVER)
+@Import({JpaCommentRepository.class, JpaBookRepository.class, CommentConverter.class, CommentServiceImpl.class})
 @RequiredArgsConstructor
 class CommentServiceIntegrationTest {
 
