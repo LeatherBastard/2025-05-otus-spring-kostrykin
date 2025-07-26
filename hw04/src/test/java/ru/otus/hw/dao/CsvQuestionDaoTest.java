@@ -14,7 +14,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest (classes = CsvQuestionDao.class)
+@SpringBootTest(classes = CsvQuestionDao.class)
 class CsvQuestionDaoTest {
     @MockitoBean
     private TestFileNameProvider testFileNameProvider;

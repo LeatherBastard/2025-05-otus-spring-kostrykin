@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 import ru.otus.hw.models.Comment;
 
 import java.util.List;
@@ -13,11 +11,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@ActiveProfiles("test")
 class JpaCommentRepositoryTest {
     private static final long COMMENT_ID = 3L;
     private static final long BOOK_ID = 3L;
-    private static final long FIFTH_COMMENT_ID = 5L;
     private static final int EXPECTED_COMMENTS_COUNT = 2;
 
 
@@ -58,9 +54,9 @@ class JpaCommentRepositoryTest {
     @Test
     void shouldSaveComment() {
         Comment comment = new Comment(0, bookRepository.findById(1).get(), "Some comment");
-        commentRepository.save(comment);
+        comment = commentRepository.save(comment);
         em.clear();
-        Comment actualComment = em.find(Comment.class, FIFTH_COMMENT_ID);
+        Comment actualComment = em.find(Comment.class, comment.getId());
         assertThat(actualComment).isNotNull().hasFieldOrPropertyWithValue("text", comment.getText());
     }
 
