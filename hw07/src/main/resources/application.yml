@@ -9,11 +9,9 @@ spring:
       hibernate:
         format_sql: true
   flyway:
-    enabled: false
-  location: classpath:db/migration
-
+    enabled: true
+    location: classpath:db/migration
   sql:
     init:
-      mode: always
-      data-locations: data.sql
-      schema-locations: schema.sql
+      mode: never
+

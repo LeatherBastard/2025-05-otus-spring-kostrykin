@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookRepository extends CrudRepository<Book, Long> {
-    @EntityGraph(value = "book-entity-graph")
+    @EntityGraph(attributePaths = {"author", "genres"})
     Optional<Book> findById(long id);
 
-    @EntityGraph(value = "book-entity-graph")
+    @EntityGraph(attributePaths = {"author"})
     List<Book> findAll();
 
     void deleteById(long id);

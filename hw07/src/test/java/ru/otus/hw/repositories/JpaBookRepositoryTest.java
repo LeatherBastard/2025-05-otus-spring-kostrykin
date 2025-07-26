@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 import ru.otus.hw.models.Book;
 
 import java.util.ArrayList;
@@ -14,7 +12,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@ActiveProfiles("test")
 class JpaBookRepositoryTest {
 
     private static final long BOOK_ID = 3L;
@@ -46,10 +43,10 @@ class JpaBookRepositoryTest {
     void shouldReturnCorrectBooksListWithAllInfo() {
         List<Book> books = bookRepository.findAll();
         assertThat(books).isNotNull().hasSize(EXPECTED_BOOKS_COUNT)
-                .allMatch(s -> !s.getTitle().equals(""))
+                .allMatch(s -> !s.getTitle().isEmpty())
                 .allMatch(s -> s.getAuthor() != null)
-                .allMatch(s -> s.getGenres() != null && s.getGenres().size() > 0)
-                .allMatch(s -> s.getComments() != null && s.getComments().size() > 0);
+                .allMatch(s -> s.getGenres() != null && !s.getGenres().isEmpty())
+                .allMatch(s -> s.getComments() != null && !s.getComments().isEmpty());
     }
 
     @Test
