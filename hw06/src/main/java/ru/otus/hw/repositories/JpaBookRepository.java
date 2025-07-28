@@ -23,7 +23,7 @@ public class JpaBookRepository implements BookRepository {
 
     @Override
     public Optional<Book> findById(long id) {
-        EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-graph");
+        EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-author-genres-graph");
 
         return Optional.ofNullable(
                 entityManager.find(Book.class,
@@ -33,7 +33,7 @@ public class JpaBookRepository implements BookRepository {
 
     @Override
     public List<Book> findAll() {
-        EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-graph");
+        EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-author-graph");
         TypedQuery<Book> query = entityManager
                 .createQuery("select b from Book b", Book.class);
         query.setHint("javax.persistence.fetchgraph", entityGraph);
