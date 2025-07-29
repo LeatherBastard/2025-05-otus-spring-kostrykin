@@ -1,10 +1,12 @@
 package ru.otus.hw.repositories;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import ru.otus.hw.models.Book;
+import ru.otus.hw.models.Genre;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,6 @@ class JpaBookRepositoryTest {
     private static final long BOOK_ID = 3L;
     private static final long SECOND_BOOK_ID = 2L;
     private static final long FOURTH_BOOK_ID = 4L;
-    private static final int EXPECTED_BOOKS_COUNT = 3;
 
     @Autowired
     private BookRepository bookRepository;
@@ -31,6 +32,26 @@ class JpaBookRepositoryTest {
     @Autowired
     private TestEntityManager em;
 
+    private List<Book> expectedBooks;
+
+    @BeforeEach
+    public void initialize() {
+        expectedBooks = List.of(
+                new Book(1, "BookTitle_1",
+                        authorRepository.findById(1L).get(),
+                        List.of(new Genre(1, "Genre_1"), new Genre(2, "Genre_2")),
+                        null),
+                new Book(2, "BookTitle_2",
+                        authorRepository.findById(2L).get(),
+                        List.of(new Genre(3, "Genre_3"), new Genre(4, "Genre_4")),
+                        null),
+                new Book(3, "BookTitle_3",
+                        authorRepository.findById(3L).get(),
+                        List.of(new Genre(5, "Genre_5"), new Genre(6, "Genre_6")),
+                        null)
+        );
+    }
+
     @Test
     void shouldFindExpectedBookById() {
         Book actualBook = bookRepository.findById(BOOK_ID).get();
@@ -42,11 +63,8 @@ class JpaBookRepositoryTest {
     @Test
     void shouldReturnCorrectBooksListWithAllInfo() {
         List<Book> books = bookRepository.findAll();
-        assertThat(books).isNotNull().hasSize(EXPECTED_BOOKS_COUNT)
-                .allMatch(s -> !s.getTitle().isEmpty())
-                .allMatch(s -> s.getAuthor() != null)
-                .allMatch(s -> s.getGenres() != null && !s.getGenres().isEmpty())
-                .allMatch(s -> s.getComments() != null && !s.getComments().isEmpty());
+        assertThat(books).usingRecursiveComparison().ignoringFields("comments").isEqualTo(expectedBooks);
+
     }
 
     @Test
@@ -63,13 +81,13 @@ class JpaBookRepositoryTest {
     void shouldSaveBook() {
         Book book = new Book(0,
                 "Book",
-                authorRepository.findById(1).get(),
-                genreRepository.findAll(),
+                authorRepository.findById(1L).get(),
+                List.of(new Genre(1, "Genre_1")),
                 new ArrayList<>());
         bookRepository.save(book);
         em.clear();
         Book actualBook = em.find(Book.class, FOURTH_BOOK_ID);
-        assertThat(actualBook).isNotNull().hasFieldOrPropertyWithValue("title", book.getTitle());
+        assertThat(actualBook).usingRecursiveComparison().ignoringFields("id", "author", "genres").isEqualTo(book);
     }
 
 

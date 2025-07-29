@@ -42,7 +42,7 @@ public class CommentServiceImpl implements CommentService {
         var book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(bookId)));
         var comment = new Comment(0, book, text);
-        return commentConverter.commentToDto(comment);
+        return commentConverter.commentToDto(commentRepository.save(comment));
     }
 
     @Transactional
