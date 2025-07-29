@@ -1,11 +1,13 @@
 package ru.otus.hw.repositories;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import ru.otus.hw.models.Comment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,7 +16,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class JpaCommentRepositoryTest {
     private static final long COMMENT_ID = 3L;
     private static final long BOOK_ID = 3L;
-    private static final int EXPECTED_COMMENTS_COUNT = 2;
 
 
     @Autowired
@@ -26,6 +27,15 @@ class JpaCommentRepositoryTest {
     @Autowired
     private TestEntityManager em;
 
+    private List<Comment> expectedComments;
+
+    @BeforeEach
+    public void initialize() {
+        expectedComments = List.of(
+                new Comment(2, bookRepository.findById(3L).get(), "Very good"),
+                new Comment(3, bookRepository.findById(3L).get(), "Boring"));
+    }
+
     @Test
     void shouldFindExpectedCommentById() {
         Comment actualComment = commentRepository.findById(COMMENT_ID).get();
@@ -35,10 +45,9 @@ class JpaCommentRepositoryTest {
 
     @Test
     void shouldReturnCorrectCommentsByBookIdListWithAllInfo() {
-        List<Comment> comments = commentRepository.findAllByBookId(BOOK_ID);
-        assertThat(comments).isNotNull().hasSize(EXPECTED_COMMENTS_COUNT)
-                .allMatch(s -> s.getBook() != null)
-                .allMatch(s -> s.getText() != null);
+        List<Comment> comments = new ArrayList<>();
+        commentRepository.findByBookId(BOOK_ID).forEach(comments::add);
+        assertThat(comments).usingRecursiveComparison().isEqualTo(expectedComments);
     }
 
     @Test
@@ -53,11 +62,11 @@ class JpaCommentRepositoryTest {
 
     @Test
     void shouldSaveComment() {
-        Comment comment = new Comment(0, bookRepository.findById(1).get(), "Some comment");
+        Comment comment = new Comment(0, bookRepository.findById(1L).get(), "Some comment");
         comment = commentRepository.save(comment);
         em.clear();
         Comment actualComment = em.find(Comment.class, comment.getId());
-        assertThat(actualComment).isNotNull().hasFieldOrPropertyWithValue("text", comment.getText());
+        assertThat(actualComment).usingRecursiveComparison().ignoringFields("id", "book").isEqualTo(comment);
     }
 
 }
