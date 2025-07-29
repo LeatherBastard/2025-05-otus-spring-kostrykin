@@ -7,6 +7,7 @@ import ru.otus.hw.converters.GenreConverter;
 import ru.otus.hw.dto.GenreDto;
 import ru.otus.hw.repositories.GenreRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -19,6 +20,12 @@ public class GenreServiceImpl implements GenreService {
     @Transactional(readOnly = true)
     @Override
     public List<GenreDto> findAll() {
-        return genreRepository.findAll().stream().map(genreConverter::genreToDto).toList();
+        List<GenreDto> genres = new ArrayList<>();
+        genreRepository.findAll().forEach(
+                genre -> {
+                    genres.add(genreConverter.genreToDto(genre));
+                }
+        );
+        return genres;
     }
 }
