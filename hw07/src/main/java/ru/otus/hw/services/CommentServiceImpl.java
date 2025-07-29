@@ -26,42 +26,32 @@ public class CommentServiceImpl implements CommentService {
     @Transactional(readOnly = true)
     @Override
     public Optional<CommentDto> findById(long id) {
-        var comment = commentRepository.findById(id);
-        CommentDto commentDto = null;
-        if (comment.isPresent()) {
-            commentDto = commentConverter.commentToDto(comment.get());
-        }
-        return Optional.ofNullable(commentDto);
+        var comment = commentRepository.findById(id).map(commentConverter::commentToDto).orElse(null);
+        return Optional.ofNullable(comment);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<CommentDto> findAllByBookId(long id) {
-        return commentRepository.findAllByBookId(id).stream().map(commentConverter::commentToDto).toList();
+        return commentRepository.findByBookId(id).stream().map(commentConverter::commentToDto).toList();
     }
 
     @Transactional
     @Override
     public CommentDto insert(long bookId, String text) {
-        var book = bookRepository.findById(bookId);
-        if (book.isEmpty()) {
-            throw new EntityNotFoundException("Book with id %s not found".formatted(bookId));
-        }
-        var comment = new Comment(0, book.get(), text);
+        var book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(bookId)));
+        var comment = new Comment(0, book, text);
         return commentConverter.commentToDto(comment);
     }
 
     @Transactional
     @Override
     public CommentDto update(long id, String text) {
-
-        var updateComment = commentRepository.findById(id);
-        if (updateComment.isEmpty()) {
-            throw new EntityNotFoundException("Comment with id %s not found".formatted(id));
-        }
-        Comment comment = updateComment.get();
-        comment.setText(text);
-        return commentConverter.commentToDto(commentRepository.save(comment));
+        var updateComment = commentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Comment with id %s not found".formatted(id)));
+        updateComment.setText(text);
+        return commentConverter.commentToDto(commentRepository.save(updateComment));
     }
 
     @Transactional

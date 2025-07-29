@@ -7,6 +7,7 @@ import ru.otus.hw.converters.AuthorConverter;
 import ru.otus.hw.dto.AuthorDto;
 import ru.otus.hw.repositories.AuthorRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -19,6 +20,12 @@ public class AuthorServiceImpl implements AuthorService {
     @Transactional(readOnly = true)
     @Override
     public List<AuthorDto> findAll() {
-        return authorRepository.findAll().stream().map(authorConverter::authorToDto).toList();
+        List<AuthorDto> authorDtos = new ArrayList<>();
+        authorRepository.findAll().forEach(
+                author -> {
+                    authorDtos.add(authorConverter.authorToDto(author));
+                }
+        );
+        return authorDtos;
     }
 }

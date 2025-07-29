@@ -7,7 +7,4 @@ import java.util.List;
 import java.util.Set;
 
 public interface GenreRepository extends CrudRepository<Genre, Long> {
-    List<Genre> findAllByIdIn(Set<Long> ids);
-
-    List<Genre> findAll();
 }
