@@ -39,9 +39,18 @@ class JpaBookRepositoryTest {
     @BeforeEach
     public void initialize() {
         expectedBooks = List.of(
-                new Book(1, "BookTitle_1", authorRepository.findById(1).get(), genreRepository.findAllByIds(Set.of(1L, 2L)), null),
-                new Book(2, "BookTitle_2", authorRepository.findById(2).get(), genreRepository.findAllByIds(Set.of(3L, 4L)), null),
-                new Book(3, "BookTitle_3", authorRepository.findById(3).get(), genreRepository.findAllByIds(Set.of(5L, 6L)), null)
+                new Book(1, "BookTitle_1",
+                        authorRepository.findById(1).get(),
+                        genreRepository.findAllByIds(Set.of(1L, 2L)),
+                        null),
+                new Book(2, "BookTitle_2",
+                        authorRepository.findById(2).get(),
+                        genreRepository.findAllByIds(Set.of(3L, 4L)),
+                        null),
+                new Book(3, "BookTitle_3",
+                        authorRepository.findById(3).get(),
+                        genreRepository.findAllByIds(Set.of(5L, 6L)),
+                        null)
         );
     }
 
