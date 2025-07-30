@@ -11,7 +11,7 @@ public class CommentConverter {
 
 
     public String commentToString(CommentDto comment) {
-        return "Id: %d, Text: %s".formatted(comment.id(), comment.text());
+        return "Id: %s, Text: %s".formatted(comment.id(), comment.text());
     }
 
     public CommentDto commentToDto(Comment comment) {

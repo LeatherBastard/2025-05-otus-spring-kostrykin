@@ -13,8 +13,12 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "authors")
 public class Author {
     @Id
-    private long id;
+    private String id;
 
     @Field(name = "full_name")
     private String fullName;
+
+    public Author(String fullName) {
+        this.fullName = fullName;
+    }
 }
