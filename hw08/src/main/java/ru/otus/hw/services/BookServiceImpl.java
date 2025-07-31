@@ -7,6 +7,7 @@ import ru.otus.hw.converters.BookConverter;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Book;
+import ru.otus.hw.models.Comment;
 import ru.otus.hw.models.Genre;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
@@ -41,6 +42,7 @@ public class BookServiceImpl implements BookService {
     @Transactional(readOnly = true)
     @Override
     public List<BookDto> findAll() {
+        List<Book> books = bookRepository.findAll();
         return bookRepository.findAll().stream().map(bookConverter::bookToDto).toList();
     }
 
@@ -58,7 +60,7 @@ public class BookServiceImpl implements BookService {
         if (isEmpty(genres) || genresIds.size() != genres.size()) {
             throw new EntityNotFoundException("One or all genres with ids %s not found".formatted(genresIds));
         }
-
+        List<Comment> comments = new ArrayList<>();
         var book = new Book(title, author, genres);
         return bookConverter.bookToDto(bookRepository.save(book));
     }

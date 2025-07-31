@@ -15,7 +15,7 @@ import java.util.List;
 public class AuthorServiceImpl implements AuthorService {
     private final AuthorConverter authorConverter;
 
-    private final AuthorRepository authorRepository;
+    private  AuthorRepository authorRepository;
 
     @Transactional(readOnly = true)
     @Override
