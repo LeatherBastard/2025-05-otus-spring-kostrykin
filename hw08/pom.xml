@@ -21,7 +21,7 @@
         <checkstyle-plugin.version>3.3.1</checkstyle-plugin.version>
         <checkstyle.version>10.15.0</checkstyle.version>
         <reflections.version>0.10.2</reflections.version>
-        <flapdoodle.version>3.0.0</flapdoodle.version>
+        <flapdoodle.version>4.7.0</flapdoodle.version>
         <mongock.version>4.3.8</mongock.version>
         <checkstyle.config.url>
             https://raw.githubusercontent.com/OtusTeam/Spring/master/checkstyle.xml
@@ -42,6 +42,12 @@
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <version>${flapdoodle.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
+            <version>${flapdoodle.version}</version>
         </dependency>
 
         <dependency>
