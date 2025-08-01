@@ -19,7 +19,9 @@ import java.util.List;
 public class InitMongoDBDataChangeLog {
 
     private List<Author> authors = new ArrayList<>();
+
     private List<Genre> genres = new ArrayList<>();
+
     private List<Book> books = new ArrayList<>();
 
     @ChangeSet(order = "000", id = "dropDB", author = "lb", runAlways = true)
