@@ -8,7 +8,7 @@ import org.mockito.Mockito;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 
- class TestRunnerServiceImplTest {
+class TestRunnerServiceImplTest {
     private final TestService testService = Mockito.mock(TestService.class);
 
     private final StudentService studentService = Mockito.mock(StudentService.class);
