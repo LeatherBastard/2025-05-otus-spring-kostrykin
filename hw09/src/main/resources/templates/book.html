@@ -31,7 +31,7 @@
     </style>
 
 </head>
-<body>
+<body th:object="${book}">
 
 
 <h3>Book:</h3>
@@ -46,7 +46,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:object="${book}">
+    <tr>
         <td th:text="*{id}">1</td>
         <td th:text="*{title}">Book_1</td>
         <td th:text="*{author.fullName}">Author_1</td>
@@ -63,7 +63,12 @@
     </tr>
     </tbody>
 </table>
-
+<form th:action="@{/books/{bookId}(bookId=${book.id})}" th:method="delete">
+    <div>
+        <a href="editbook.html" th:href="@{{id}/edit(id=*{id})}">Edit</a>
+        <button type="submit">Delete</button>
+    </div>
+</form>
 
 <div class="main-menu">
     <div><a href="/">Main menu</a></div>

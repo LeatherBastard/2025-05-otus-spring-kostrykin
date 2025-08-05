@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.BookConverter;
 import ru.otus.hw.dto.BookDto;
+import ru.otus.hw.dto.UpdateBookDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
@@ -84,6 +85,7 @@ public class BookServiceImpl implements BookService {
 
         return bookConverter.bookToDto(bookRepository.save(updateBook));
     }
+
 
     @Transactional
     @Override
