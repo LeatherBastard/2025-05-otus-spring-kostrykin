@@ -9,7 +9,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -31,7 +30,6 @@ public class Book {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<Genre> genres;
-
 
 
     public Book(String title, Author author, List<Genre> genres) {
