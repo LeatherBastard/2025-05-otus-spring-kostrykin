@@ -32,14 +32,11 @@ public class Book {
     @ToString.Exclude
     private List<Genre> genres;
 
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Comment> comments;
+
 
     public Book(String title, Author author, List<Genre> genres) {
         this.title = title;
         this.author = author;
         this.genres = genres;
-        comments = new ArrayList<>();
     }
 }
