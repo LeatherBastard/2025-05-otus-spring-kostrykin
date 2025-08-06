@@ -47,9 +47,14 @@ public class BookController {
     }
 
     @PostMapping("/book")
-    public String addBook(@Valid @ModelAttribute("bookDto") CreateBookDto bookDto,
+    public String addBook(Model model, @Valid @ModelAttribute("bookDto") CreateBookDto bookDto,
                           BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
+            List<AuthorDto> authors = authorService.findAll();
+            List<GenreDto> genres = genreService.findAll();
+            model.addAttribute("authors", authors);
+            model.addAttribute("genres", genres);
+            model.addAttribute("bookDto", bookDto);
             return "addbook";
         }
         bookService.insert(bookDto.title(), bookDto.authorId(), bookDto.genreIds());
@@ -98,7 +103,21 @@ public class BookController {
     }
 
     @PutMapping("/books/{bookId}/edit")
-    public String updateBook(@ModelAttribute("bookDto") UpdateBookDto bookDto) {
+    public String updateBook(Model model, @Valid @ModelAttribute("bookDto") UpdateBookDto bookDto, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            List<AuthorDto> authors = authorService.findAll();
+            List<GenreDto> genres = genreService.findAll();
+            List<CommentDto> comments = commentService.findAllByBookId(bookDto.id());
+            BookDto book = bookService.findById(bookDto.id()).orElseThrow(() ->
+                    new EntityNotFoundException(String.format("Book with id %d was not found", bookDto.id())));
+            model.addAttribute("authors", authors);
+            model.addAttribute("genres", genres);
+            model.addAttribute("comments", comments);
+            model.addAttribute("book", book);
+            return "editbook";
+        }
+
         bookService.update(bookDto.id(), bookDto.title(), bookDto.authorId(), bookDto.genreIds());
         return "redirect:/";
     }

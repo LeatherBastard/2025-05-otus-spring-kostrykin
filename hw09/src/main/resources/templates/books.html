@@ -49,7 +49,7 @@
         <td th:text="*{title}">Book_1</td>
         <td th:text="*{author.fullName}">Author_1</td>
         <td>
-            <ul  th:each="genre: *{genres}" th:object="${genre}" >
+            <ul th:each="genre: *{genres}" th:object="${genre}">
                 <li th:text="*{name}">Genre_1</li>
             </ul>
         </td>
