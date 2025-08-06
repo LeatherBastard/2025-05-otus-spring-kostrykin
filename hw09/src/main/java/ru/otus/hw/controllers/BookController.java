@@ -34,8 +34,11 @@ import java.util.stream.Collectors;
 public class BookController {
 
     private final BookService bookService;
+
     private final AuthorService authorService;
+
     private final GenreService genreService;
+
     private final CommentService commentService;
 
     @GetMapping("/books")
@@ -103,7 +106,9 @@ public class BookController {
     }
 
     @PutMapping("/books/{bookId}/edit")
-    public String updateBook(Model model, @Valid @ModelAttribute("bookDto") UpdateBookDto bookDto, BindingResult bindingResult) {
+    public String updateBook(Model model,
+                             @Valid @ModelAttribute("bookDto") UpdateBookDto bookDto,
+                             BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             List<AuthorDto> authors = authorService.findAll();
