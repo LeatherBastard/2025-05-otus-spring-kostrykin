@@ -13,11 +13,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.otus.hw.dto.AuthorDto;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.dto.CommentDto;
 import ru.otus.hw.dto.CreateBookDto;
-import ru.otus.hw.dto.GenreDto;
 import ru.otus.hw.dto.UpdateBookDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.services.AuthorService;
@@ -34,18 +32,14 @@ import java.util.stream.Collectors;
 public class BookController {
 
     private final BookService bookService;
-
     private final AuthorService authorService;
-
     private final GenreService genreService;
-
     private final CommentService commentService;
 
     @GetMapping("/books")
     public String allBooksPage(Model model) {
         List<BookDto> bookDtos = bookService.findAll();
         model.addAttribute("books", bookDtos);
-
         return "books";
     }
 
@@ -53,10 +47,8 @@ public class BookController {
     public String addBook(Model model, @Valid @ModelAttribute("bookDto") CreateBookDto bookDto,
                           BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            List<AuthorDto> authors = authorService.findAll();
-            List<GenreDto> genres = genreService.findAll();
-            model.addAttribute("authors", authors);
-            model.addAttribute("genres", genres);
+            model.addAttribute("authors", authorService.findAll());
+            model.addAttribute("genres", genreService.findAll());
             model.addAttribute("bookDto", bookDto);
             return "addbook";
         }
@@ -66,11 +58,9 @@ public class BookController {
 
     @GetMapping("/book")
     public String addBookPage(Model model) {
-        List<AuthorDto> authors = authorService.findAll();
-        List<GenreDto> genres = genreService.findAll();
         CreateBookDto bookDto = new CreateBookDto("", 0, Set.of());
-        model.addAttribute("authors", authors);
-        model.addAttribute("genres", genres);
+        model.addAttribute("authors", authorService.findAll());
+        model.addAttribute("genres", genreService.findAll());
         model.addAttribute("bookDto", bookDto);
         return "addbook";
     }
@@ -87,14 +77,11 @@ public class BookController {
 
     @GetMapping("/books/{bookId}/edit")
     public String editBookPage(@PathVariable long bookId, Model model) {
-        List<AuthorDto> authors = authorService.findAll();
-        List<GenreDto> genres = genreService.findAll();
-        List<CommentDto> comments = commentService.findAllByBookId(bookId);
         BookDto book = bookService.findById(bookId).orElseThrow(() ->
                 new EntityNotFoundException(String.format("Book with id %d was not found", bookId)));
-        model.addAttribute("authors", authors);
-        model.addAttribute("genres", genres);
-        model.addAttribute("comments", comments);
+        model.addAttribute("authors", authorService.findAll());
+        model.addAttribute("genres", genreService.findAll());
+        model.addAttribute("comments", commentService.findAllByBookId(bookId));
         model.addAttribute("book", book);
         model.addAttribute("bookDto",
                 new UpdateBookDto(book.id(),
@@ -106,19 +93,14 @@ public class BookController {
     }
 
     @PutMapping("/books/{bookId}/edit")
-    public String updateBook(Model model,
-                             @Valid @ModelAttribute("bookDto") UpdateBookDto bookDto,
-                             BindingResult bindingResult) {
+    public String updateBook(Model model, @Valid @ModelAttribute("bookDto") UpdateBookDto bookDto, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
-            List<AuthorDto> authors = authorService.findAll();
-            List<GenreDto> genres = genreService.findAll();
-            List<CommentDto> comments = commentService.findAllByBookId(bookDto.id());
             BookDto book = bookService.findById(bookDto.id()).orElseThrow(() ->
                     new EntityNotFoundException(String.format("Book with id %d was not found", bookDto.id())));
-            model.addAttribute("authors", authors);
-            model.addAttribute("genres", genres);
-            model.addAttribute("comments", comments);
+            model.addAttribute("authors", authorService.findAll());
+            model.addAttribute("genres", genreService.findAll());
+            model.addAttribute("comments", commentService.findAllByBookId(bookDto.id()));
             model.addAttribute("book", book);
             return "editbook";
         }
