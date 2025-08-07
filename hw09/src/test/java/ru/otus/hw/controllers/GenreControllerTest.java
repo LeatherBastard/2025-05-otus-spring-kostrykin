@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@WebMvcTest(GenreControllerTest.class)
+@WebMvcTest(GenreController.class)
 public class GenreControllerTest {
     @Autowired
     private MockMvc mvc;
