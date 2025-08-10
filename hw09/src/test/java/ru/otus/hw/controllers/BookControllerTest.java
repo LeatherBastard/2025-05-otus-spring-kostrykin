@@ -5,12 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.otus.hw.dto.AuthorDto;
-import ru.otus.hw.dto.BookDto;
-import ru.otus.hw.dto.CommentDto;
-import ru.otus.hw.dto.CreateBookDto;
-import ru.otus.hw.dto.GenreDto;
-import ru.otus.hw.dto.UpdateBookDto;
+import ru.otus.hw.dto.author.AuthorDto;
+import ru.otus.hw.dto.book.BookDto;
+import ru.otus.hw.dto.book.CreateBookDto;
+import ru.otus.hw.dto.book.UpdateBookDto;
+import ru.otus.hw.dto.comment.CommentDto;
+import ru.otus.hw.dto.genre.GenreDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.services.AuthorService;
 import ru.otus.hw.services.BookService;
@@ -23,8 +23,7 @@ import java.util.Set;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(BookController.class)
 public class BookControllerTest {
@@ -100,14 +99,7 @@ public class BookControllerTest {
                 Set.of(genres.get(0).id(), genres.get(1).id()));
         mvc.perform(post("/book").flashAttr("bookDto", createBookDto))
                 .andExpect(view().name("redirect:/"));
-        verify(bookService, times(1)).insert(anyString(), anyLong(), anySet());
-    }
-
-    @Test
-    void shouldRenderErrorPageWhenBookNotFound() throws Exception {
-        when(bookService.findById(1L)).thenThrow(new EntityNotFoundException(anyString()));
-        mvc.perform(get("/books/").param("bookId", "1"))
-                .andExpect(view().name("customError"));
+        verify(bookService, times(1)).insert(any(CreateBookDto.class));
     }
 
 
@@ -118,7 +110,7 @@ public class BookControllerTest {
                 Set.of(genres.get(0).id(), genres.get(1).id()));
         mvc.perform(put("/books/1/edit").flashAttr("bookDto", updateBookDto))
                 .andExpect(view().name("redirect:/"));
-        verify(bookService, times(1)).update(anyLong(), anyString(), anyLong(), anySet());
+        verify(bookService, times(1)).update(any(UpdateBookDto.class));
     }
 
     @Test
@@ -126,6 +118,26 @@ public class BookControllerTest {
         mvc.perform(delete("/books/1"))
                 .andExpect(view().name("redirect:/"));
         verify(bookService, times(1)).deleteById(anyLong());
+    }
+
+    @Test
+    void shouldRenderErrorPageWhenBookNotFound() throws Exception {
+        when(bookService.findById(1L)).thenThrow(new EntityNotFoundException(anyString()));
+        mvc.perform(get("/books/").param("bookId", "1"))
+                .andExpect(view().name("customError")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldRenderErrorPageWhenWrongRequestParam() throws Exception {
+        mvc.perform(get("/books/").param("bookId", "ab"))
+                .andExpect(view().name("customError")).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldRenderErrorPageWhenSomethingGoWrong() throws Exception {
+        when(bookService.findAll()).thenThrow(new IllegalArgumentException("Just exception"));
+        mvc.perform(get("/books")).andExpect(view().name("customError"))
+                .andExpect(status().isInternalServerError());
     }
 
 }

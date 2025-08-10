@@ -1,4 +1,7 @@
-package ru.otus.hw.dto;
+package ru.otus.hw.dto.book;
+
+import ru.otus.hw.dto.author.AuthorDto;
+import ru.otus.hw.dto.genre.GenreDto;
 
 import java.util.List;
 

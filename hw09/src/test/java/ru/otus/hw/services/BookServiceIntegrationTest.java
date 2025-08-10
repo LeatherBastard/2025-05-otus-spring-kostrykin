@@ -9,11 +9,13 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.otus.hw.converters.AuthorConverter;
-import ru.otus.hw.converters.BookConverter;
-import ru.otus.hw.converters.CommentConverter;
-import ru.otus.hw.converters.GenreConverter;
-import ru.otus.hw.dto.BookDto;
+import ru.otus.hw.converters.AuthorMapper;
+import ru.otus.hw.converters.BookMapper;
+import ru.otus.hw.converters.CommentMapper;
+import ru.otus.hw.converters.GenreMapper;
+import ru.otus.hw.dto.book.BookDto;
+import ru.otus.hw.dto.book.CreateBookDto;
+import ru.otus.hw.dto.book.UpdateBookDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
@@ -30,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @Transactional(propagation = Propagation.NEVER)
-@Import({CommentConverter.class, BookConverter.class, AuthorConverter.class, GenreConverter.class, BookServiceImpl.class})
+@Import({CommentMapper.class, BookMapper.class, AuthorMapper.class, GenreMapper.class, BookServiceImpl.class})
 @RequiredArgsConstructor
 class BookServiceIntegrationTest {
     private static final long BOOK_ID = 3L;
@@ -48,7 +50,7 @@ class BookServiceIntegrationTest {
     private BookService bookService;
 
     @Autowired
-    private BookConverter bookConverter;
+    private BookMapper bookMapper;
 
     private List<Book> expectedBooks;
 
@@ -73,19 +75,19 @@ class BookServiceIntegrationTest {
     @Test
     void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindById() {
         BookDto bookDto = bookService.findById(BOOK_ID).get();
-        assertThat(bookDto).usingRecursiveComparison().isEqualTo(bookConverter.bookToDto(expectedBooks.get(2)));
+        assertThat(bookDto).usingRecursiveComparison().isEqualTo(bookMapper.bookToDto(expectedBooks.get(2)));
     }
 
     @Test
     void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindAll() {
         List<BookDto> bookDtos = bookService.findAll();
-        List<BookDto> expectedBookDtos = expectedBooks.stream().map(bookConverter::bookToDto).toList();
+        List<BookDto> expectedBookDtos = expectedBooks.stream().map(bookMapper::bookToDto).toList();
         assertThat(bookDtos).usingRecursiveComparison().isEqualTo(expectedBookDtos);
     }
 
     @Test
     void shouldDeleteById() {
-        BookDto bookDto = bookService.insert("Book", 2, Set.of(2L, 5L));
+        BookDto bookDto = bookService.insert(new CreateBookDto("Book", 2, Set.of(2L, 5L)));
         bookService.deleteById(bookDto.id());
         Optional<BookDto> expectedBookDto = bookService.findById(bookDto.id());
         assertThat(expectedBookDto.isEmpty());
@@ -95,7 +97,7 @@ class BookServiceIntegrationTest {
     class InsertTests {
         @Test
         void shouldInsert() {
-            BookDto bookDto = bookService.insert("Book", 2, Set.of(2L, 5L));
+            BookDto bookDto = bookService.insert(new CreateBookDto("Book", 2, Set.of(2L, 5L)));
             BookDto expectedBookDto = bookService.findById(bookDto.id()).get();
             assertThat(bookDto).usingRecursiveComparison().isEqualTo(expectedBookDto);
             bookService.deleteById(bookDto.id());
@@ -103,14 +105,14 @@ class BookServiceIntegrationTest {
 
         @Test
         void shouldThrowIllegalArgumentExceptionWhenGenresAreEmpty() {
-            assertThatThrownBy(() -> bookService.insert("Book", 1, Set.of()))
+            assertThatThrownBy(() -> bookService.insert(new CreateBookDto("Book", 1, Set.of())))
                     .isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("Genres ids must not be null");
         }
 
         @Test
         void shouldThrowEntityNotFoundExceptionWhenAuthorIsEmpty() {
             long authorId = 0;
-            assertThatThrownBy(() -> bookService.insert("Book", authorId, Set.of(2L, 3L)))
+            assertThatThrownBy(() -> bookService.insert(new CreateBookDto("Book", authorId, Set.of(2L, 3L))))
                     .isExactlyInstanceOf(EntityNotFoundException.class)
                     .hasMessage(String.format("Author with id %d not found", authorId));
         }
@@ -118,7 +120,7 @@ class BookServiceIntegrationTest {
         @Test
         void shouldThrowEntityNotFoundExceptionWhenGenresNotFound() {
             Set genreIds = Set.of(10L, 15L);
-            assertThatThrownBy(() -> bookService.insert("Book", 2, genreIds))
+            assertThatThrownBy(() -> bookService.insert(new CreateBookDto("Book", 2, genreIds)))
                     .isExactlyInstanceOf(EntityNotFoundException.class)
                     .hasMessage("One or all genres with ids %s not found", genreIds.toString());
         }
@@ -129,12 +131,13 @@ class BookServiceIntegrationTest {
     class UpdateTests {
         @Test
         void shouldUpdate() {
-            BookDto bookDto = bookService.insert("Book", 2, Set.of(2L, 5L));
+            BookDto bookDto = bookService.insert(new CreateBookDto("Book", 2, Set.of(2L, 5L)));
             String updatedTitle = "UpdatedBook";
             long updatedAuthorId = 3L;
             Set<Long> updatedGenreIds = Set.of(5L, 6L);
-            BookDto actualBookDto = bookService.update(bookDto.id(), updatedTitle, updatedAuthorId, updatedGenreIds);
-            BookDto expectedBookDto = bookConverter.bookToDto(new Book(actualBookDto.id(),
+            BookDto actualBookDto = bookService.update(new UpdateBookDto(bookDto.id(), updatedTitle
+                    , updatedAuthorId, updatedGenreIds));
+            BookDto expectedBookDto = bookMapper.bookToDto(new Book(actualBookDto.id(),
                     updatedTitle,
                     authorRepository.findById(updatedAuthorId).get(),
                     List.of(new Genre(5, "Genre_5"), new Genre(6, "Genre_6")),
@@ -148,7 +151,8 @@ class BookServiceIntegrationTest {
         @Test
         void shouldThrowEntityNotFoundExceptionWhenBookIsEmpty() {
             long bookId = 0;
-            assertThatThrownBy(() -> bookService.update(bookId, "Book", 1, Set.of(2L, 3L)))
+            assertThatThrownBy(() -> bookService.update(new UpdateBookDto(bookId, "Book",
+                    1, Set.of(2L, 3L))))
                     .isExactlyInstanceOf(EntityNotFoundException.class)
                     .hasMessage(String.format("Book with id %d not found", bookId));
         }
@@ -156,14 +160,14 @@ class BookServiceIntegrationTest {
         @Test
         void shouldThrowEntityNotFoundExceptionWhenAuthorIsEmpty() {
             long authorId = 0;
-            assertThatThrownBy(() -> bookService.update(1, "Book", authorId, Set.of(2L, 3L)))
+            assertThatThrownBy(() -> bookService.update(new UpdateBookDto(1, "Book", authorId, Set.of(2L, 3L))))
                     .isExactlyInstanceOf(EntityNotFoundException.class)
                     .hasMessage(String.format("Author with id %d not found", authorId));
         }
 
         @Test
         void shouldThrowEntityNotFoundExceptionWhenGenresAreEmpty() {
-            assertThatThrownBy(() -> bookService.update(1, "Book", 1, Set.of()))
+            assertThatThrownBy(() -> bookService.update(new UpdateBookDto(1, "Book", 1, Set.of())))
                     .isExactlyInstanceOf(EntityNotFoundException.class)
                     .hasMessage("One or all genres with ids [] not found");
         }
