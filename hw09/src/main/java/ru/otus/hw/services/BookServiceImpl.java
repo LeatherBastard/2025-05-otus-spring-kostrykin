@@ -52,7 +52,8 @@ public class BookServiceImpl implements BookService {
             throw new IllegalArgumentException("Genres ids must not be null");
         }
         var author = authorRepository.findById(bookDto.authorId())
-                .orElseThrow(() -> new EntityNotFoundException("Author with id %s not found".formatted(bookDto.authorId())));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Author with id %s not found".formatted(bookDto.authorId())));
 
         List<Genre> genres = new ArrayList<>();
         genreRepository.findAllById(bookDto.genreIds()).forEach(genres::add);

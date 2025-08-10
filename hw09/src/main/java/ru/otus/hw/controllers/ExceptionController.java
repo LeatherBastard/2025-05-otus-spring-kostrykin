@@ -28,6 +28,7 @@ public class ExceptionController {
 
     @ExceptionHandler(Exception.class)
     public ModelAndView handleException(Exception ex) {
-        return new ModelAndView("customError", Map.of("errorText", Arrays.toString(ex.getStackTrace())), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ModelAndView("customError", Map.of("errorText", Arrays.toString(ex.getStackTrace())),
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
