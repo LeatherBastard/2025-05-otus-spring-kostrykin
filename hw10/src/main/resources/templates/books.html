@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Main menu</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        .books {
+            border: 1px solid steelblue;
+            width: 300px;
+            border-collapse: collapse;
+        }
+
+        .books tr td, th {
+            padding: 5px;
+            border: 1px solid steelblue;
+        }
+
+        .books td:last-child, td:first-child {
+            width: 50px;
+        }
+
+        .main-menu{
+            padding-top:100px;
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+<h3>Books:</h3>
+<table class="books">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genres</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="book : ${books}" th:object="${book}">
+        <td th:text="*{id}">1</td>
+        <td th:text="*{title}">Book_1</td>
+        <td th:text="*{author.fullName}">Author_1</td>
+        <td>
+            <ul th:each="genre: *{genres}" th:object="${genre}">
+                <li th:text="*{name}">Genre_1</li>
+            </ul>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        getBooks();
+    });
+
+    function getBooks() {
+              fetch('/api/books')
+                  .then(response => response.json())
+                  .then(books => {
+                       let table = document.getElementsByClassName('books')[0].tBodies[0];
+                     for(var i=0;i<books.length;i++)
+                     {
+                       let tr=document.createElement('tr')
+
+                       let cell1=document.createElement('td');
+                       cell1.textContent=books[i].id;
+                       tr.appendChild(cell1);
+
+                       let cell2=document.createElement('td');
+                       cell2.textContent=books[i].title;
+                       tr.appendChild(cell2);
+
+                      let cell3=document.createElement('td');
+                      cell3.textContent=books[i].author.fullName;
+                      tr.appendChild(cell3);
+
+                      let cell4=document.createElement('td');
+                      let ulist=document.createElement('ul');
+                      cell4.appendChild(ulist);
+                      for(var j=0;j<books[i].genres.length;j++)
+                      {
+                          let litem=document.createElement('li');
+                          litem.textContent=books[i].genres[j].name;
+                          ulist.appendChild(litem);
+                      }
+                      tr.appendChild(cell4);
+
+                       table.appendChild(tr);
+                       
+                     }
+                  })
+                   .catch(error => console.error('Error:', error));
+          }
+
+</script>
+
+
+
+<div class="main-menu">
+    <div><a href="/">Main menu</a></div>
+</div>
+
+</body>
+</html>

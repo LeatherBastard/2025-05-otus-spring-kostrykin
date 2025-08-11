@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Main menu</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        .book {
+            border: 1px solid steelblue;
+            width: 300px;
+            border-collapse: collapse;
+        }
+
+        .book tr td, th {
+            padding: 5px;
+            border: 1px solid steelblue;
+        }
+
+        .book td:last-child, td:first-child {
+            width: 50px;
+        }
+
+        .main-menu{
+            padding-top:100px;
+        }
+
+
+    </style>
+
+</head>
+<body th:object="${book}">
+
+
+<h3>Book:</h3>
+<table class="book">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genres</th>
+        <th>Comments</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+
+<script>
+    let queryString = document.location.search;
+    let params = new URLSearchParams(queryString);
+    let bookId = params.get('bookId');
+    getBook(bookId);
+
+
+  async function getBook(bookId) {
+     let bookResponse= await fetch('/api/books/'+bookId);
+     let book=await bookResponse.json();
+     let commentResponse = await fetch('/api/comments?bookId='+bookId);
+     let comments=await commentResponse.json();
+
+     let table = document.getElementsByClassName('book')[0].tBodies[0];
+     let tr=document.createElement('tr')
+
+      let cell1=document.createElement('td');
+      cell1.textContent=book.id;
+      tr.appendChild(cell1);
+
+      let cell2=document.createElement('td');
+      cell2.textContent=book.title;
+      tr.appendChild(cell2);
+
+      let cell3=document.createElement('td');
+      cell3.textContent=book.author.fullName;
+      tr.appendChild(cell3);
+
+      let cell4=document.createElement('td');
+      let ulist=document.createElement('ul');
+      cell4.appendChild(ulist);
+      for(var j=0;j<book.genres.length;j++)
+      {
+          let litem=document.createElement('li');
+          litem.textContent=book.genres[j].name;
+          ulist.appendChild(litem);
+      }
+      tr.appendChild(cell4);
+
+
+       let cell5=document.createElement('td');
+      ulist=document.createElement('ul');
+      cell5.appendChild(ulist);
+      for(var j=0;j<comments.length;j++)
+      {
+          let litem=document.createElement('li');
+          litem.textContent=comments[j].text;
+          ulist.appendChild(litem);
+      }
+      tr.appendChild(cell5);
+       table.appendChild(tr);
+
+      }
+
+
+</script>
+
+<form action="" method="delete">
+    <div>
+        <a href="editbook.html">Edit</a>
+        <button type="submit">Delete</button>
+    </div>
+</form>
+
+
+<div class="main-menu">
+    <div><a href="/">Main menu</a></div>
+</div>
+
+</body>
+</html>
