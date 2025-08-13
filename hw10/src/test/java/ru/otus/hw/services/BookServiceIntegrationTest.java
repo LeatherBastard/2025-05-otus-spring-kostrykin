@@ -28,6 +28,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @Transactional(propagation = Propagation.NEVER)
@@ -88,8 +89,7 @@ class BookServiceIntegrationTest {
     void shouldDeleteById() {
         BookDto bookDto = bookService.insert(new CreateBookDto("Book", 2L, Set.of(2L, 5L)));
         bookService.deleteById(bookDto.id());
-        BookDto expectedBookDto = bookService.findById(bookDto.id());
-        assertThat(expectedBookDto).isNull();
+        assertThrows(EntityNotFoundException.class, () -> bookService.findById(bookDto.id()));
     }
 
     @Nested
