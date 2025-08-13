@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <title>Main menu</title>
@@ -34,7 +34,7 @@
 <body>
 
 <h3>Genres:</h3>
-<table class="genres">
+<table class="genres" id="genres">
     <thead>
     <tr>
         <th>ID</th>
@@ -47,32 +47,28 @@
 
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        getGenres();
-    });
+    getGenres();
+  async function getGenres() {
+             let response=await fetch('/api/genres');
+             let genres=await response.json();
 
-    function getGenres() {
-              fetch('/api/genres')
-                  .then(response => response.json())
-                  .then(genres => {
-                       let table = document.getElementsByClassName('genres')[0].tBodies[0];
-                     for(var i=0;i<genres.length;i++)
-                     {
-                       let tr=document.createElement('tr')
+              let table = document.getElementById('genres').tBodies[0];
+            for(var i=0;i<genres.length;i++)
+            {
+              let tr=document.createElement('tr')
 
-                       let cell1=document.createElement('td');
-                       cell1.textContent=genres[i].id;
-                       tr.appendChild(cell1);
+              let cell1=document.createElement('td');
+              cell1.textContent=genres[i].id;
+              tr.appendChild(cell1);
 
-                       let cell2=document.createElement('td');
-                       cell2.textContent=genres[i].name;
-                       tr.appendChild(cell2);
+              let cell2=document.createElement('td');
+              cell2.textContent=genres[i].name;
+              tr.appendChild(cell2);
 
-                       table.appendChild(tr);
+              table.appendChild(tr);
 
-                     }
-                  })
-                   .catch(error => console.error('Error:', error));
+            }
+
           }
 
 </script>

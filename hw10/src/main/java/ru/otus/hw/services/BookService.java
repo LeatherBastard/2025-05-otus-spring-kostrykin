@@ -5,7 +5,6 @@ import ru.otus.hw.dto.book.CreateBookDto;
 import ru.otus.hw.dto.book.UpdateBookDto;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface BookService {
     BookDto findById(long id);

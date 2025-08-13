@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <title>Main menu</title>
@@ -34,7 +34,7 @@
 <body>
 
 <h3>Authors:</h3>
-<table class="authors">
+<table class="authors" id="authors">
     <thead>
     <tr>
         <th>ID</th>
@@ -46,33 +46,29 @@
 </table>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        getAuthors();
-    });
+    getAuthors();
 
-    function getAuthors() {
-              fetch('/api/authors')
-                  .then(response => response.json())
-                  .then(authors => {
-                       let table = document.getElementsByClassName('authors')[0].tBodies[0];
-                     for(var i=0;i<authors.length;i++)
-                     {
-                       let tr=document.createElement('tr')
+    async function getAuthors() {
+          let response= await fetch('/api/authors');
+          let authors= await response.json();
 
-                       let cell1=document.createElement('td');
-                       cell1.textContent=authors[i].id;
-                       tr.appendChild(cell1);
+            let table = document.getElementById('authors').tBodies[0];
+          for(var i=0;i<authors.length;i++)
+          {
+            let tr=document.createElement('tr')
 
-                       let cell2=document.createElement('td');
-                       cell2.textContent=authors[i].fullName;
-                       tr.appendChild(cell2);
+            let cell1=document.createElement('td');
+            cell1.textContent=authors[i].id;
+            tr.appendChild(cell1);
 
-                       table.appendChild(tr);
+            let cell2=document.createElement('td');
+            cell2.textContent=authors[i].fullName;
+            tr.appendChild(cell2);
 
-                     }
-                  })
-                   .catch(error => console.error('Error:', error));
+            table.appendChild(tr);
+            }
           }
+
 
 </script>
 

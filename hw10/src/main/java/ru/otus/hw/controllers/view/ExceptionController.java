@@ -21,6 +21,7 @@ public class ExceptionController {
         return new ModelAndView("customError", Map.of("errorText", ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ModelAndView handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         return new ModelAndView("customError", Map.of("errorText", ex.getMessage()), HttpStatus.BAD_REQUEST);
@@ -28,7 +29,8 @@ public class ExceptionController {
 
     @ExceptionHandler(Exception.class)
     public ModelAndView handleException(Exception ex) {
-        return new ModelAndView("customError", Map.of("errorText", Arrays.toString(ex.getStackTrace())),
+        return new ModelAndView("customError", Map.of("errorText", ex.getMessage() + " " +
+                Arrays.toString(ex.getStackTrace())),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

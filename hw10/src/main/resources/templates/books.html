@@ -34,7 +34,7 @@
 <body>
 
 <h3>Books:</h3>
-<table class="books">
+<table class="books" id="books">
     <thead>
     <tr>
         <th>ID</th>
@@ -58,51 +58,48 @@
 </table>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        getBooks();
-    });
+    getBooks();
 
-    function getBooks() {
-              fetch('/api/books')
-                  .then(response => response.json())
-                  .then(books => {
-                       let table = document.getElementsByClassName('books')[0].tBodies[0];
-                     for(var i=0;i<books.length;i++)
-                     {
-                       let tr=document.createElement('tr')
+async function getBooks() {
 
-                       let cell1=document.createElement('td');
-                       cell1.textContent=books[i].id;
-                       tr.appendChild(cell1);
+let response= await fetch('/api/books');
+let books= await response.json();
 
-                       let cell2=document.createElement('td');
-                       cell2.textContent=books[i].title;
-                       tr.appendChild(cell2);
+      let table = document.getElementById('books').tBodies[0];
+    for(var i=0;i<books.length;i++)
+    {
+      let tr=document.createElement('tr')
 
-                      let cell3=document.createElement('td');
-                      cell3.textContent=books[i].author.fullName;
-                      tr.appendChild(cell3);
+      let cell1=document.createElement('td');
+      cell1.textContent=books[i].id;
+      tr.appendChild(cell1);
 
-                      let cell4=document.createElement('td');
-                      let ulist=document.createElement('ul');
-                      cell4.appendChild(ulist);
-                      for(var j=0;j<books[i].genres.length;j++)
-                      {
-                          let litem=document.createElement('li');
-                          litem.textContent=books[i].genres[j].name;
-                          ulist.appendChild(litem);
-                      }
-                      tr.appendChild(cell4);
+      let cell2=document.createElement('td');
+      cell2.textContent=books[i].title;
+      tr.appendChild(cell2);
 
-                       table.appendChild(tr);
-                       
-                     }
-                  })
-                   .catch(error => console.error('Error:', error));
-          }
+     let cell3=document.createElement('td');
+     cell3.textContent=books[i].author.fullName;
+     tr.appendChild(cell3);
+
+     let cell4=document.createElement('td');
+     let ulist=document.createElement('ul');
+     cell4.appendChild(ulist);
+     for(var j=0;j<books[i].genres.length;j++)
+     {
+         let litem=document.createElement('li');
+         litem.textContent=books[i].genres[j].name;
+         ulist.appendChild(litem);
+     }
+     tr.appendChild(cell4);
+
+      table.appendChild(tr);
+
+   }
+
+   }
 
 </script>
-
 
 
 <div class="main-menu">
