@@ -65,7 +65,7 @@ public class BookControllerTest {
     @Test
     void shouldDeleteBookById() throws Exception {
         mvc.perform(delete("/api/books/1")).andExpect(status().isOk());
-        verify(bookService, times(1)).deleteById(1);
+        verify(bookService, times(1)).deleteById(1L);
     }
 
     @Test

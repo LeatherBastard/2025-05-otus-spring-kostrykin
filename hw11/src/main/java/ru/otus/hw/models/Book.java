@@ -14,29 +14,29 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.List;
 
-@Getter
+@Data
 @Table(name = "books")
 public class Book {
     @Id
-    private final Long id;
+    private Long id;
 
     @NotNull
-    private final String title;
-
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @NotNull
-    private final Author author;
+    private String title;
 
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @NotNull
-    private final List<Genre> genres;
+    private Author author;
 
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @NotNull
-    private final List<Comment> comments;
+    private List<Genre> genres;
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @NotNull
+    private List<Comment> comments;
 
     @PersistenceCreator
     public Book(Long id,

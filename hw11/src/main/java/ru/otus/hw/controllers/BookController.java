@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.otus.hw.dto.book.BookDto;
 import ru.otus.hw.dto.book.CreateBookDto;
 import ru.otus.hw.dto.book.UpdateBookDto;
 import ru.otus.hw.services.BookService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -26,17 +26,17 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping("/books")
-    public List<BookDto> getBooks() {
+    public Flux<BookDto> getBooks() {
         return bookService.findAll();
     }
 
     @GetMapping("/books/{bookId}")
-    public BookDto getBookById(@PathVariable long bookId) {
+    public Mono<BookDto> getBookById(@PathVariable long bookId) {
         return bookService.findById(bookId);
     }
 
     @PatchMapping("/books/{bookId}")
-    public BookDto updateBook(@PathVariable long bookId, @RequestBody @Valid UpdateBookDto bookDto) {
+    public Mono<BookDto> updateBook(@PathVariable long bookId, @RequestBody @Valid UpdateBookDto bookDto) {
         return bookService.update(bookDto);
     }
 
@@ -47,7 +47,7 @@ public class BookController {
 
 
     @PostMapping("/books")
-    public BookDto addBook(@RequestBody @Valid CreateBookDto bookDto) {
+    public Mono<BookDto> addBook(@RequestBody @Valid CreateBookDto bookDto) {
         return bookService.insert(bookDto);
     }
 }

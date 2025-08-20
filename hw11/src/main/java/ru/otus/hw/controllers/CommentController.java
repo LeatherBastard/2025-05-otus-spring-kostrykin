@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import ru.otus.hw.dto.comment.CommentDto;
 import ru.otus.hw.services.CommentService;
 
@@ -18,7 +19,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/comments")
-    public List<CommentDto> getCommentsByBookId(@RequestParam long bookId) {
+    public Flux<CommentDto> getCommentsByBookId(@RequestParam long bookId) {
         return commentService.findAllByBookId(bookId);
     }
 }

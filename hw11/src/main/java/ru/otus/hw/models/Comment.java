@@ -2,7 +2,6 @@ package ru.otus.hw.models;
 
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
@@ -18,7 +17,11 @@ public class Comment {
     private final Book book;
 
     @NotNull
-    private final String text;
+    private String text;
+
+    public void setText(@NotNull String text) {
+        this.text = text;
+    }
 
     @PersistenceCreator
     public Comment(Long id, @NotNull Book book, @NotNull String text) {
