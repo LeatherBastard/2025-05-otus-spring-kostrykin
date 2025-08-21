@@ -8,9 +8,6 @@ import ru.otus.hw.converters.AuthorMapper;
 import ru.otus.hw.dto.author.AuthorDto;
 import ru.otus.hw.repositories.AuthorRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @RequiredArgsConstructor
 @Service
 public class AuthorServiceImpl implements AuthorService {
@@ -18,7 +15,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
 
-
+    @Transactional(readOnly = true)
     @Override
     public Flux<AuthorDto> findAll() {
        return authorRepository.findAll().map(authorMapper::authorToDto);

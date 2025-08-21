@@ -1,6 +1,9 @@
 package ru.otus.hw.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -10,22 +13,18 @@ import ru.otus.hw.dto.book.BookDto;
 import ru.otus.hw.dto.book.CreateBookDto;
 import ru.otus.hw.dto.book.UpdateBookDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
-import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
-import ru.otus.hw.models.Genre;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.GenreRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.springframework.util.CollectionUtils.isEmpty;
+import java.util.logging.Logger;
 
 @RequiredArgsConstructor
 @Service
+@Log4j2
 public class BookServiceImpl implements BookService {
+
 
     private final BookMapper bookMapper;
 
@@ -35,73 +34,89 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
-    public Mono<BookDto> findById(Long id) {
-        return bookRepository.findById(id).map(bookMapper::bookToDto)
-                .onErrorResume(e -> Mono.error(new EntityNotFoundException(String.format("Book with id %d was not found", id))));
+    public Mono<BookDto> findById(String id) {
+        return bookRepository.findById(id)
+                .map(bookMapper::bookToDto)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Book with id %s not found".formatted(id))));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Flux<BookDto> findAll() {
-        return bookRepository.findAll().map(bookMapper::bookToDto);
+        return bookRepository.findAll()
+                .map(bookMapper::bookToDto);
     }
 
     @Transactional
     @Override
     public Mono<BookDto> insert(CreateBookDto bookDto) {
-        if (isEmpty(bookDto.genreIds())) {
-            throw new IllegalArgumentException("Genres ids must not be null");
-        }
-        var authorMono = authorRepository.findById(bookDto.authorId())
-                .onErrorResume(e ->
-                        Mono.error(new EntityNotFoundException("Author with id %s not found".formatted(bookDto.authorId()))));
-        AtomicReference<Author> author = new AtomicReference<>();
-        authorMono.subscribe(result -> author.set(result));
-
-        List<Genre> genres = genreRepository.findAllById(bookDto.genreIds()).toStream().toList();
-
-        if (isEmpty(genres) || bookDto.genreIds().size() != genres.size()) {
-            throw new EntityNotFoundException("One or all genres with ids %s not found".formatted(bookDto.genreIds()));
+        if (bookDto.genreIds() == null || bookDto.genreIds().isEmpty()) {
+            return Mono.error(new IllegalArgumentException("Genres ids must not be null or empty"));
         }
 
-        var book = new Book(0L, bookDto.title(), author.get(), genres, new ArrayList<>());
-        return bookRepository.save(book).map(bookMapper::bookToDto);
+        return authorRepository.findById(bookDto.authorId())
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Author with id %s not found".formatted(bookDto.authorId()))))
+                .flatMap(author -> genreRepository.findAllById(bookDto.genreIds())
+                        .collectList()
+                        .flatMap(genres -> {
+                            if (genres.isEmpty() || bookDto.genreIds().size() != genres.size()) {
+                                return Mono.error(new EntityNotFoundException(
+                                        "One or all genres with ids %s not found".formatted(bookDto.genreIds()))
+                                );
+                            }
+                            Book book = new Book(bookDto.title(), author, genres);
+                            return bookRepository.save(book)
+                                    .map(bookMapper::bookToDto);
+                        })
+                );
     }
 
     @Transactional
     @Override
     public Mono<BookDto> update(UpdateBookDto bookDto) {
 
-        var updateBookMono = bookRepository.findById(bookDto.id()).onErrorResume(e -> Mono.error(new EntityNotFoundException("Book with id %s not found".formatted(bookDto.id()))));
-        AtomicReference<Book> updateBook = new AtomicReference<>();
-        updateBookMono.subscribe(result -> updateBook.set(result));
-
-        var authorMono = authorRepository.findById(bookDto.authorId()).onErrorResume(e -> Mono.error(new EntityNotFoundException("Author with id %s not found"
-                .formatted(bookDto.authorId()))));
-        AtomicReference<Author> author = new AtomicReference<>();
-        authorMono.subscribe(result -> author.set(result));
-
-
-        List<Genre> genres = genreRepository.findAllById(bookDto.genreIds()).toStream().toList();
-
-        if (isEmpty(genres) || bookDto.genreIds().size() != genres.size()) {
-            throw new EntityNotFoundException("One or all genres with ids %s not found".formatted(bookDto.genreIds()));
+        log.info("Received update request: {}", bookDto);
+        if (bookDto.genreIds() == null || bookDto.genreIds().isEmpty()) {
+            return Mono.error(new IllegalArgumentException("Genres ids must not be null or empty"));
         }
 
-        updateBook.get().setTitle(bookDto.title());
-        updateBook.get().setAuthor(author.get());
-        updateBook.get().setGenres(genres);
-
-        return bookRepository.save(updateBook.get()).map(bookMapper::bookToDto);
+        return bookRepository.findById(bookDto.id())
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Book with id %s not found".formatted(bookDto.id()))))
+                .flatMap(updateBook -> authorRepository.findById(bookDto.authorId())
+                        .switchIfEmpty(Mono.error(new EntityNotFoundException("Author with id %s not found".formatted(bookDto.authorId()))))
+                        .flatMap(author -> genreRepository.findAllById(bookDto.genreIds())
+                                .collectList()
+                                .flatMap(genres -> {
+                                    if (genres.isEmpty() || bookDto.genreIds().size() != genres.size()) {
+                                        return Mono.error(new EntityNotFoundException(
+                                                "One or all genres with ids %s not found".formatted(bookDto.genreIds()))
+                                        );
+                                    }
+                                    updateBook.setTitle(bookDto.title());
+                                    updateBook.setAuthor(author);
+                                    updateBook.setGenres(genres);
+                                    return bookRepository.save(updateBook)
+                                            .map(bookMapper::bookToDto);
+                                })
+                        )
+                );
     }
-
 
     @Transactional
     @Override
-    public void deleteById(Long id) {
-        bookRepository.deleteById(id);
+    public Mono<Void> deleteById(String id) {
+        return bookRepository.existsById(id)
+                .flatMap(exists -> {
+                    if (!exists) {
+                        return Mono.error(new EntityNotFoundException("Book with id %s not found".formatted(id)));
+                    }
+                    return bookRepository.deleteById(id);
+                })
+                .doOnSubscribe(subscription -> log.info("Attempting to delete book with ID: {}", id))
+                .doOnSuccess(v -> log.info("Successfully deleted book: {}", id))
+                .doOnError(e -> log.error("Failed to delete book: {}", e.getMessage()));
     }
 
 

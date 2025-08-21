@@ -1,42 +1,113 @@
 package ru.otus.hw.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebFlux;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
+import ru.otus.hw.controllers.AuthorController;
+import ru.otus.hw.converters.AuthorMapper;
 import ru.otus.hw.dto.author.AuthorDto;
+import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.services.AuthorService;
 
-import java.util.List;
-
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(AuthorController.class)
+
+
+@WebFluxTest(controllers = AuthorController.class)
 public class AuthorControllerTest {
 
-
     @Autowired
-    private MockMvc mvc;
+    private WebTestClient webTestClient;
 
     @MockBean
     private AuthorService authorService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockBean
+    private AuthorMapper authorMapper;
+
+    @MockBean
+    private AuthorRepository authorRepository;
 
 
-    private List<AuthorDto> authors = List.of(new AuthorDto(1, "Author_1"),
-            new AuthorDto(2, "Author_2"));
+
 
     @Test
-    void shouldReturnAuthors() throws Exception {
-        when(authorService.findAll()).thenReturn(authors);
-        mvc.perform(get("/api/authors")).andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(authors)));
+    public void testGetAuthors_ShouldReturnAllAuthors() {
+
+        AuthorDto author1 = new AuthorDto("1", "Author_1");
+        AuthorDto author2 = new AuthorDto("2", "Author_2");
+
+        when(authorService.findAll()).thenReturn(Flux.just(author1, author2));
+
+
+        webTestClient.get()
+                .uri("/api/authors")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(AuthorDto.class)
+                .hasSize(2)
+                .contains(author1, author2);
+    }
+
+    @Test
+    public void testGetAuthors_WhenNoAuthors_ShouldReturnEmptyList() {
+
+        when(authorService.findAll()).thenReturn(Flux.empty());
+
+
+        webTestClient.get()
+                .uri("/api/authors")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(AuthorDto.class)
+                .hasSize(0);
+    }
+
+    @Test
+    public void testGetAuthors_WhenServiceThrowsException_ShouldReturnError() {
+
+        when(authorService.findAll()).thenReturn(Flux.error(new RuntimeException("Database error")));
+
+
+        webTestClient.get()
+                .uri("/api/authors")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().is5xxServerError();
+    }
+
+    @Test
+    public void testGetAuthors_ShouldReturnCorrectJsonStructure() {
+
+        AuthorDto author = new AuthorDto("1", "Author_1");
+        when(authorService.findAll()).thenReturn(Flux.just(author));
+
+
+        webTestClient.get()
+                .uri("/api/authors")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$[0].id").isEqualTo("1")
+                .jsonPath("$[0].fullName").isEqualTo("Author_1");
     }
 }

@@ -1,25 +1,25 @@
 package ru.otus.hw.models;
 
-
-import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.PersistenceCreator;
-import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-@Getter
-@Table(name = "genres")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+
+@Document(collection = "genres")
 public class Genre {
     @Id
-    private final Long id;
+    private String id;
 
-    @NotNull
-    private final String name;
+    @Field(name = "name")
+    private String name;
 
-    @PersistenceCreator
-    public Genre(Long id, @NotNull String name) {
-        this.id = id;
+    public Genre(String name) {
         this.name = name;
     }
 }

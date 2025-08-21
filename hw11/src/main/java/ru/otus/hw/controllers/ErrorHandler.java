@@ -4,13 +4,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.MissingRequestValueException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,9 +42,22 @@ public class ErrorHandler {
     }
 
 
+
+    @ExceptionHandler(WebExchangeBindException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleWebExchangeBindException(WebExchangeBindException ex) {
+        return new ApiError(BAD_REQUEST_STATUS, BAD_REQUEST_REASON, ex.getMessage(), LocalDateTime.now());
+    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        return new ApiError(BAD_REQUEST_STATUS, BAD_REQUEST_REASON, ex.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(MissingRequestValueException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleMissingRequestValueException(MissingRequestValueException ex) {
         return new ApiError(BAD_REQUEST_STATUS, BAD_REQUEST_REASON, ex.getMessage(), LocalDateTime.now());
     }
 
@@ -55,7 +73,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiError handleException(Throwable ex) {
-        return new ApiError(INTERNAL_SERVER_ERROR_STATUS, INTERNAL_SERVER_ERROR_REASON, ex.getMessage()
+        return new ApiError(INTERNAL_SERVER_ERROR_STATUS, INTERNAL_SERVER_ERROR_REASON,ex.getClass().getName()+ex.getCause()+ex.getMessage()+ Arrays.stream(ex.getStackTrace()).map(element->element.toString()).toList().toString()
                 , LocalDateTime.now());
     }
 }

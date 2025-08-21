@@ -8,8 +8,6 @@ import reactor.core.publisher.Flux;
 import ru.otus.hw.dto.genre.GenreDto;
 import ru.otus.hw.services.GenreService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor

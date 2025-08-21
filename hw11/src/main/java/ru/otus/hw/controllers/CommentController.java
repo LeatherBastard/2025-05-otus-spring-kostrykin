@@ -9,8 +9,6 @@ import reactor.core.publisher.Flux;
 import ru.otus.hw.dto.comment.CommentDto;
 import ru.otus.hw.services.CommentService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -19,7 +17,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/comments")
-    public Flux<CommentDto> getCommentsByBookId(@RequestParam long bookId) {
+    public Flux<CommentDto> getCommentsByBookId(@RequestParam String bookId) {
         return commentService.findAllByBookId(bookId);
     }
 }

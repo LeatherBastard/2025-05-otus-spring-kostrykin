@@ -9,8 +9,6 @@ import reactor.core.publisher.Flux;
 import ru.otus.hw.dto.author.AuthorDto;
 import ru.otus.hw.services.AuthorService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor

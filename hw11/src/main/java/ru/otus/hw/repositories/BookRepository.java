@@ -1,13 +1,14 @@
 package ru.otus.hw.repositories;
 
-
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-
-import org.springframework.stereotype.Repository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ru.otus.hw.models.Book;
 
 
-@Repository
-public interface BookRepository extends ReactiveCrudRepository<Book, Long> {
+public interface BookRepository extends ReactiveMongoRepository<Book, String> {
 
+
+    Mono<Boolean> existsById(String id);
 }

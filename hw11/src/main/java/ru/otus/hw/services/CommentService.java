@@ -7,13 +7,15 @@ import ru.otus.hw.dto.comment.CreateCommentDto;
 import ru.otus.hw.dto.comment.UpdateCommentDto;
 
 public interface CommentService {
-    Mono<CommentDto> findById(Long id);
+    Mono<CommentDto> findById(String id);
 
-    Flux<CommentDto> findAllByBookId(Long id);
+    Flux<CommentDto> findAllByBookId(String id);
 
-    Mono<CommentDto> insert(Long bookId, CreateCommentDto commentDto);
+    Mono<CommentDto> insert(String bookId, CreateCommentDto commentDto);
 
     Mono<CommentDto> update(UpdateCommentDto commentDto);
 
-    void deleteById(Long id);
+    Mono<Void> deleteById(String id);
+
+
 }

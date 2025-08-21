@@ -18,6 +18,7 @@ public class BookMapper {
                 book.getTitle(),
                 authorMapper.authorToDto(book.getAuthor()),
                 book.getGenres().stream().map(genreMapper::genreToDto).toList());
-
     }
+
+
 }

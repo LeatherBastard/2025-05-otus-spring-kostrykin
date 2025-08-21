@@ -1,32 +1,29 @@
 package ru.otus.hw.models;
 
 
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.PersistenceCreator;
-import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-@Getter
-@Table(name = "comments")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Document(collection = "comments")
 public class Comment {
     @Id
-    private final Long id;
+    private String id;
 
-    @NotNull
-    private final Book book;
 
-    @NotNull
+    private String bookId;
+
+    @Field(name = "text")
     private String text;
 
-    public void setText(@NotNull String text) {
-        this.text = text;
-    }
-
-    @PersistenceCreator
-    public Comment(Long id, @NotNull Book book, @NotNull String text) {
-        this.id = id;
-        this.book = book;
+    public Comment(String bookId, String text) {
+        this.bookId = bookId;
         this.text = text;
     }
 

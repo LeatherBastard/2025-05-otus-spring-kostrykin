@@ -11,7 +11,7 @@ public record CreateBookDto(@NotBlank(message = "Title should not be blank")
                             @Size(min = 4, message = "Title should be 4 symbols minimum")
                             String title,
                             @NotNull
-                            Long authorId,
+                            String authorId,
                             @NotEmpty
-                            Set<Long> genreIds) {
+                            Set<String> genreIds) {
 }

@@ -1,25 +1,24 @@
 package ru.otus.hw.models;
 
-
-import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.PersistenceCreator;
-import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-@Getter
-@Table(name = "authors")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Document(collection = "authors")
 public class Author {
     @Id
-    private final Long id;
+    private String id;
 
-    @NotNull
-    private final String fullName;
+    @Field(name = "full_name")
+    private String fullName;
 
-    @PersistenceCreator
-    public Author(Long id, @NotNull String fullName) {
-        this.id = id;
+    public Author(String fullName) {
         this.fullName = fullName;
     }
 }
