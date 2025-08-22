@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Main menu</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        .book {
+            border: 1px solid steelblue;
+            width: 300px;
+            border-collapse: collapse;
+        }
+
+        .book tr td, th {
+            padding: 20px;
+            border: 1px solid steelblue;
+        }
+
+        .book td:last-child, td:first-child {
+            width: 50px;
+        }
+
+        .main-menu{
+            padding-top:100px;
+        }
+
+        .errors{
+            color:red;
+        }
+
+    </style>
+
+</head>
+<body>
+<form>
+    <h3>Book:</h3>
+    <table class="book" id="book">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Genres</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+
+        </tr>
+        </tbody>
+    </table>
+    <script>
+        getBooksInfo();
+
+        async function getBooksInfo() {
+            let authors = await fetch('/api/authors').then(response=>response.json());
+            let genres= await fetch('/api/genres').then(response=>response.json());
+
+            let table = document.getElementById('book').tBodies[0];
+            table.innerHTML='';
+
+            let tr=document.createElement('tr');
+
+            let cell1=document.createElement('td');
+            let titleInput=document.createElement('input');
+            titleInput.id='titleInput';
+            titleInput.type='text';
+            titleInput.readOnly=false;
+            cell1.appendChild(titleInput);
+            tr.appendChild(cell1);
+
+            let cell2=document.createElement('td');
+            let authorSelect=document.createElement('select');
+            authorSelect.id='authorSelect';
+          authors.forEach(author=> {
+            let option=document.createElement('option');
+            option.value=author.id;
+            option.text=author.fullName;
+            authorSelect.appendChild(option);
+          });
+            cell2.appendChild(authorSelect);
+            tr.appendChild(cell2);
+
+            let cell3=document.createElement('td');
+          genres.forEach(genre=> {
+            let genreCheckbox=document.createElement('input');
+            genreCheckbox.id='checkbox'+genre.id;
+            genreCheckbox.type='checkbox';
+            genreCheckbox.value=genre.id;
+            let genreLabel=document.createElement('label');
+            genreLabel.htmlFor=genreCheckbox.id;
+            genreLabel.textContent=genre.name;
+            cell3.appendChild(genreCheckbox);
+            cell3.appendChild(genreLabel);
+          });
+            tr.appendChild(cell3);
+            table.appendChild(tr);
+        }
+
+async function addBook() {
+  let checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  let checkedValues = [];
+
+  checkboxes.forEach(checkbox => {
+    if (checkbox.checked) {
+      checkedValues.push(checkbox.value);
+    }
+  });
+
+  let bookDto = {
+    title: document.getElementById('titleInput').value,
+    authorId: document.getElementById('authorSelect').value,
+    genreIds: checkedValues
+  };
+  await fetch('/api/books', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(bookDto)
+  }).then(
+    response => {
+      if (!response.ok) {
+        return response.json().then(errors => {
+          throw errors;
+        });
+      } else {
+        alert('The book was added');
+        window.location.assign(window.location.origin);
+      }
+    }).catch(errors => {
+    console.log(errors.json);
+    let errorDiv = document.getElementById('error');
+		errorDiv.textContent='';
+		console.log(errors);
+    for (const [field, message] of Object.entries(errors)) {
+      let errorP = document.createElement('p');
+      errorP.style.color='red';
+      errorP.textContent = field + ':' + message;
+      errorDiv.appendChild(errorP);
+    }
+  });
+}
+
+
+    </script>
+    <div id="error">
+
+    </div>
+
+    <button type="button" onclick="addBook()">Add</button>
+    <div class="main-menu">
+        <div><a href="/">Main menu</a></div>
+    </div>
+</form>
+</body>
+</html>
