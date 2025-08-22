@@ -55,7 +55,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Mono<CommentDto> update(UpdateCommentDto commentDto) {
         return commentRepository.findById(commentDto.id())
-                .switchIfEmpty(Mono.error(new EntityNotFoundException("Comment with id %s not found".formatted(commentDto.id()))))
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Comment with id %s not found"
+                        .formatted(commentDto.id()))))
                 .flatMap(updateComment -> {
                     updateComment.setText(commentDto.text());
                     return commentRepository.save(updateComment)

@@ -3,15 +3,12 @@ package ru.otus.hw.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.support.WebExchangeBindException;
-import org.springframework.web.server.MissingRequestValueException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-
+import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.MissingRequestValueException;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 
 import java.time.LocalDateTime;
@@ -41,12 +38,13 @@ public class ErrorHandler {
         return new ApiError(NOT_FOUND_STATUS, NOT_FOUND_REASON, ex.getMessage(), LocalDateTime.now());
     }
 
-
-
     @ExceptionHandler(WebExchangeBindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleWebExchangeBindException(WebExchangeBindException ex) {
-        return new ApiError(BAD_REQUEST_STATUS, BAD_REQUEST_REASON, ex.getMessage(), LocalDateTime.now());
+    public ResponseEntity<?> handleWebExchangeBindException(WebExchangeBindException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+        return ResponseEntity.badRequest().body(errors);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -61,19 +59,12 @@ public class ErrorHandler {
         return new ApiError(BAD_REQUEST_STATUS, BAD_REQUEST_REASON, ex.getMessage(), LocalDateTime.now());
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage()));
-        return ResponseEntity.badRequest().body(errors);
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiError handleException(Throwable ex) {
-        return new ApiError(INTERNAL_SERVER_ERROR_STATUS, INTERNAL_SERVER_ERROR_REASON,ex.getClass().getName()+ex.getCause()+ex.getMessage()+ Arrays.stream(ex.getStackTrace()).map(element->element.toString()).toList().toString()
-                , LocalDateTime.now());
+        return new ApiError(INTERNAL_SERVER_ERROR_STATUS, INTERNAL_SERVER_ERROR_REASON,
+                ex.getMessage() + Arrays.stream(ex.getStackTrace())
+                        .map(element -> element.toString()).toList().toString(), LocalDateTime.now());
     }
 }

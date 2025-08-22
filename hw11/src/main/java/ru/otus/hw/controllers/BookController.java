@@ -4,9 +4,6 @@ package ru.otus.hw.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.LogManager;
-import org.slf4j.Logger;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -22,7 +19,6 @@ import ru.otus.hw.dto.book.CreateBookDto;
 import ru.otus.hw.dto.book.UpdateBookDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.services.BookService;
-import ru.otus.hw.services.BookServiceImpl;
 
 @RestController
 @RequestMapping("/api")
@@ -43,17 +39,16 @@ public class BookController {
     }
 
     @PatchMapping("/books/{bookId}")
-    public Mono<BookDto> updateBook(@PathVariable String bookId,@RequestBody @Valid UpdateBookDto bookDto) {
+    public Mono<BookDto> updateBook(@PathVariable String bookId, @RequestBody @Valid UpdateBookDto bookDto) {
         return bookService.update(bookDto);
     }
 
     @DeleteMapping("/books/{bookId}")
     public Mono<Void> deleteBook(@PathVariable String bookId) {
         return bookService.deleteById(bookId)
-                .then(Mono.just(ResponseEntity.ok().build()))
-                .onErrorResume(EntityNotFoundException.class,
-                        e -> Mono.just(ResponseEntity.notFound().build()))
-                .then();
+                .onErrorResume(EntityNotFoundException.class, e ->
+                        Mono.error(new EntityNotFoundException("Book with id %s not found".formatted(bookId))
+                        ));
 
     }
 

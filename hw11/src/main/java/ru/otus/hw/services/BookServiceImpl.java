@@ -1,8 +1,6 @@
 package ru.otus.hw.services;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +15,6 @@ import ru.otus.hw.models.Book;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.GenreRepository;
-
-import java.util.logging.Logger;
 
 @RequiredArgsConstructor
 @Service
@@ -52,12 +48,9 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public Mono<BookDto> insert(CreateBookDto bookDto) {
-        if (bookDto.genreIds() == null || bookDto.genreIds().isEmpty()) {
-            return Mono.error(new IllegalArgumentException("Genres ids must not be null or empty"));
-        }
-
         return authorRepository.findById(bookDto.authorId())
-                .switchIfEmpty(Mono.error(new EntityNotFoundException("Author with id %s not found".formatted(bookDto.authorId()))))
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Author with id %s not found"
+                        .formatted(bookDto.authorId()))))
                 .flatMap(author -> genreRepository.findAllById(bookDto.genreIds())
                         .collectList()
                         .flatMap(genres -> {
@@ -76,16 +69,12 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public Mono<BookDto> update(UpdateBookDto bookDto) {
-
-        log.info("Received update request: {}", bookDto);
-        if (bookDto.genreIds() == null || bookDto.genreIds().isEmpty()) {
-            return Mono.error(new IllegalArgumentException("Genres ids must not be null or empty"));
-        }
-
         return bookRepository.findById(bookDto.id())
-                .switchIfEmpty(Mono.error(new EntityNotFoundException("Book with id %s not found".formatted(bookDto.id()))))
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Book with id %s not found"
+                        .formatted(bookDto.id()))))
                 .flatMap(updateBook -> authorRepository.findById(bookDto.authorId())
-                        .switchIfEmpty(Mono.error(new EntityNotFoundException("Author with id %s not found".formatted(bookDto.authorId()))))
+                        .switchIfEmpty(Mono.error(new EntityNotFoundException("Author with id %s not found"
+                                .formatted(bookDto.authorId()))))
                         .flatMap(author -> genreRepository.findAllById(bookDto.genreIds())
                                 .collectList()
                                 .flatMap(genres -> {
@@ -113,10 +102,8 @@ public class BookServiceImpl implements BookService {
                         return Mono.error(new EntityNotFoundException("Book with id %s not found".formatted(id)));
                     }
                     return bookRepository.deleteById(id);
-                })
-                .doOnSubscribe(subscription -> log.info("Attempting to delete book with ID: {}", id))
-                .doOnSuccess(v -> log.info("Successfully deleted book: {}", id))
-                .doOnError(e -> log.error("Failed to delete book: {}", e.getMessage()));
+                });
+
     }
 
 

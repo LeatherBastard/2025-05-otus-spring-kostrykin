@@ -1,32 +1,18 @@
 package ru.otus.hw.controllers;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebFlux;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
-import ru.otus.hw.controllers.AuthorController;
 import ru.otus.hw.converters.AuthorMapper;
 import ru.otus.hw.dto.author.AuthorDto;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.services.AuthorService;
 
 import static org.mockito.Mockito.when;
-
 
 
 @WebFluxTest(controllers = AuthorController.class)
@@ -43,8 +29,6 @@ public class AuthorControllerTest {
 
     @MockBean
     private AuthorRepository authorRepository;
-
-
 
 
     @Test

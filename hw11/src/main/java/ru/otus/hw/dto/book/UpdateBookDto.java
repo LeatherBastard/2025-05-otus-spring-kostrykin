@@ -1,6 +1,7 @@
 package ru.otus.hw.dto.book;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -14,5 +15,6 @@ public record UpdateBookDto(@NotNull
                             @NotNull
                             String authorId,
                             @NotNull
+                            @NotEmpty
                             Set<String> genreIds) {
 }

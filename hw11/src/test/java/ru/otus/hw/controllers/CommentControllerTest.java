@@ -7,16 +7,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import ru.otus.hw.controllers.CommentController;
 import ru.otus.hw.converters.CommentMapper;
 import ru.otus.hw.dto.comment.CommentDto;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.CommentRepository;
 import ru.otus.hw.services.CommentService;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(CommentController.class)
@@ -42,7 +38,7 @@ public class CommentControllerTest {
 
         String bookId = "book-1";
         CommentDto comment1 = new CommentDto("1", "Comment_1");
-        CommentDto comment2 = new CommentDto("2",  "Comment_2");
+        CommentDto comment2 = new CommentDto("2", "Comment_2");
 
         when(commentService.findAllByBookId(bookId)).thenReturn(Flux.just(comment1, comment2));
 
@@ -111,7 +107,7 @@ public class CommentControllerTest {
     void getCommentsByBookId_ShouldReturnCorrectJsonStructure() {
 
         String bookId = "book-1";
-        CommentDto comment = new CommentDto("1","Comment_1");
+        CommentDto comment = new CommentDto("1", "Comment_1");
 
         when(commentService.findAllByBookId(bookId)).thenReturn(Flux.just(comment));
 

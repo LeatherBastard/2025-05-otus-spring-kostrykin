@@ -7,7 +7,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import ru.otus.hw.converters.GenreMapper;
 import ru.otus.hw.dto.genre.GenreDto;
 import ru.otus.hw.repositories.GenreRepository;

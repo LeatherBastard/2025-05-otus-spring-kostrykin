@@ -12,6 +12,7 @@ public record CreateBookDto(@NotBlank(message = "Title should not be blank")
                             String title,
                             @NotNull
                             String authorId,
+                            @NotNull
                             @NotEmpty
                             Set<String> genreIds) {
 }
