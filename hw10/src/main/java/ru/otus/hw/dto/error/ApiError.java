@@ -1,4 +1,4 @@
-package ru.otus.hw.controllers;
+package ru.otus.hw.dto.error;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

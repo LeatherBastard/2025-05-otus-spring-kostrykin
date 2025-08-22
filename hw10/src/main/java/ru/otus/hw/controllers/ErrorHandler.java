@@ -1,6 +1,7 @@
 package ru.otus.hw.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -8,14 +9,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import ru.otus.hw.dto.error.ApiError;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 @RequiredArgsConstructor
 @RestControllerAdvice
+@Log4j2
 public class ErrorHandler {
 
     private static final String BAD_REQUEST_STATUS = "BAD_REQUEST";
@@ -54,8 +58,10 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiError handleException(Throwable ex) {
-        return new ApiError(INTERNAL_SERVER_ERROR_STATUS, INTERNAL_SERVER_ERROR_REASON, ex.getMessage()
-                , LocalDateTime.now());
+    public ApiError handleException(Exception ex) {
+        log.error(Arrays.stream(ex.getStackTrace())
+                .map(element -> element.toString()).toList().toString());
+        return new ApiError(INTERNAL_SERVER_ERROR_STATUS, INTERNAL_SERVER_ERROR_REASON,
+                ex.getMessage(), LocalDateTime.now());
     }
 }
