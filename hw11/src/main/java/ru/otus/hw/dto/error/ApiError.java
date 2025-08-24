@@ -1,8 +1,11 @@
 package ru.otus.hw.dto.error;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Getter
 public class ApiError {
     private final String status;
 
@@ -17,18 +20,6 @@ public class ApiError {
         this.reason = reason;
         this.message = message;
         this.timestamp = timestamp;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     public String getTimestamp() {

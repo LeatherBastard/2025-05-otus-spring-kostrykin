@@ -30,7 +30,6 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
 
-    @Transactional(readOnly = true)
     @Override
     public Mono<BookDto> findById(String id) {
         return bookRepository.findById(id)
@@ -38,14 +37,12 @@ public class BookServiceImpl implements BookService {
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Book with id %s not found".formatted(id))));
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Flux<BookDto> findAll() {
         return bookRepository.findAll()
                 .map(bookMapper::bookToDto);
     }
 
-    @Transactional
     @Override
     public Mono<BookDto> insert(CreateBookDto bookDto) {
         return authorRepository.findById(bookDto.authorId())
@@ -66,7 +63,6 @@ public class BookServiceImpl implements BookService {
                 );
     }
 
-    @Transactional
     @Override
     public Mono<BookDto> update(UpdateBookDto bookDto) {
         return bookRepository.findById(bookDto.id())
@@ -93,17 +89,9 @@ public class BookServiceImpl implements BookService {
                 );
     }
 
-    @Transactional
     @Override
     public Mono<Void> deleteById(String id) {
-        return bookRepository.existsById(id)
-                .flatMap(exists -> {
-                    if (!exists) {
-                        return Mono.error(new EntityNotFoundException("Book with id %s not found".formatted(id)));
-                    }
                     return bookRepository.deleteById(id);
-                });
-
     }
 
 

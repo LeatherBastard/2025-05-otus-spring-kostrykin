@@ -24,7 +24,6 @@ public class CommentServiceImpl implements CommentService {
 
     private final BookRepository bookRepository;
 
-    @Transactional(readOnly = true)
     @Override
     public Mono<CommentDto> findById(String id) {
         return commentRepository.findById(id)
@@ -32,14 +31,12 @@ public class CommentServiceImpl implements CommentService {
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Comment with id %s not found".formatted(id))));
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Flux<CommentDto> findAllByBookId(String bookId) {
         return commentRepository.findByBookId(bookId)
                 .map(commentMapper::commentToDto);
     }
 
-    @Transactional
     @Override
     public Mono<CommentDto> insert(String bookId, CreateCommentDto commentDto) {
         return bookRepository.findById(bookId)
@@ -51,7 +48,6 @@ public class CommentServiceImpl implements CommentService {
                 });
     }
 
-    @Transactional
     @Override
     public Mono<CommentDto> update(UpdateCommentDto commentDto) {
         return commentRepository.findById(commentDto.id())
@@ -64,7 +60,6 @@ public class CommentServiceImpl implements CommentService {
                 });
     }
 
-    @Transactional
     @Override
     public Mono<Void> deleteById(String id) {
         return commentRepository.findById(id)
@@ -73,7 +68,6 @@ public class CommentServiceImpl implements CommentService {
     }
 
 
-    @Transactional(readOnly = true)
     public Flux<CommentDto> findAll() {
         return commentRepository.findAll()
                 .map(commentMapper::commentToDto);

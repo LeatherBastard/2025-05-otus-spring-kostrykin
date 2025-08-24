@@ -15,7 +15,6 @@ public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
 
-    @Transactional(readOnly = true)
     @Override
     public Flux<AuthorDto> findAll() {
         return authorRepository.findAll().map(authorMapper::authorToDto);
