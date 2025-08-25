@@ -2,7 +2,6 @@ package ru.otus.hw.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import ru.otus.hw.converters.AuthorMapper;
 import ru.otus.hw.dto.author.AuthorDto;

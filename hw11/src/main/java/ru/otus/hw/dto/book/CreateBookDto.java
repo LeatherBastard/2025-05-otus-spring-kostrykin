@@ -7,12 +7,12 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
-public record CreateBookDto(@NotBlank(message = "Title should not be blank")
+public record CreateBookDto(@NotNull
+                            @NotBlank(message = "Title should not be blank")
                             @Size(min = 4, message = "Title should be 4 symbols minimum")
                             String title,
                             @NotNull
                             String authorId,
-                            @NotNull
                             @NotEmpty
-                            Set<String> genreIds) {
+                            Set<@NotNull String> genreIds) {
 }

@@ -17,7 +17,6 @@ import reactor.core.publisher.Mono;
 import ru.otus.hw.dto.book.BookDto;
 import ru.otus.hw.dto.book.CreateBookDto;
 import ru.otus.hw.dto.book.UpdateBookDto;
-import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.services.BookService;
 
 @RestController
@@ -45,10 +44,7 @@ public class BookController {
 
     @DeleteMapping("/books/{bookId}")
     public Mono<Void> deleteBook(@PathVariable String bookId) {
-        return bookService.deleteById(bookId)
-                .onErrorResume(EntityNotFoundException.class, e ->
-                        Mono.error(new EntityNotFoundException("Book with id %s not found".formatted(bookId))
-                        ));
+        return bookService.deleteById(bookId);
 
     }
 
