@@ -31,4 +31,5 @@ public class ExceptionController {
         return new ModelAndView("customError", Map.of("errorText", Arrays.toString(ex.getStackTrace())),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 }

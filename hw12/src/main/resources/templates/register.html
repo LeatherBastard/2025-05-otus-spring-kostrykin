@@ -22,17 +22,17 @@
     Invalid username and password.
 </div>
 
-<form class="center" th:action="@{/register}" th:method="post" th:object="${userDto}">
+<form class="center" th:action="@{/user}" th:method="post" th:object="${userDto}">
     <div class="input-div">
-        <input type="text" name="username" placeholder="Username"/>
+        <input type="text" name="username" th:field="*{username}" placeholder="Username"/>
     </div>
     <div class="input-div">
-        <input type="password" name="password" placeholder="Password"/>
+        <input type="password" name="password" th:field="*{password}" placeholder="Password"/>
     </div>
     <div class="input-div">
-        <input type="password" name="repeatPassword" placeholder="Repeat your password"/>
+        <input type="password" name="repeatPassword" th:field="*{repeatPassword}" placeholder="Repeat your password"/>
     </div>
-    <div class="errors" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Error</div>
+    <div class="errors" th:text="${error}">Error</div>
     <input type="submit" value="Register"/>
 </form>
 </body>
