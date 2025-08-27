@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Main menu</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        .id-input {
+            position:relative;
+            left:20px;
+        }
+
+    </style>
+
+</head>
+<body>
+
+
+<h3>Select action:</h3>
+
+
+<div><a href="addbook.html" th:href="@{/book}">Add Book</a></div>
+<div>
+    <form th:action="@{/books/}" th:method="GET">
+        Read Book By Id
+        <input type="text" name="bookId" size="4"/>
+        <button type="submit">Show</button>
+    </form>
+</div>
+
+<div><a href="books.html" th:href="@{/books}">Get All Books</a></div>
+<div><a href="authors.html" th:href="@{/authors}">Get All Authors</a></div>
+<div><a href="genres.html" th:href="@{/genres}">Get All Genres</a></div>
+
+
+</body>
+</html>
