@@ -1,0 +1,9 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://admin:password@localhost:27017/library?authSource=admin
+      host: localhost
+      port: 27017
+      database: library
+      authentication-database: admin
+
