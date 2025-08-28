@@ -2,6 +2,7 @@ package ru.otus.hw.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(BookController.class)
+@WebMvcTest(value = BookController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 public class BookControllerTest {
     @Autowired
     private MockMvc mvc;
@@ -41,14 +42,14 @@ public class BookControllerTest {
     @MockBean
     private CommentService commentService;
 
-    List<AuthorDto> authors = List.of(new AuthorDto(1, "Author_1"), new AuthorDto(2, "Author_2"));
-    List<GenreDto> genres = List.of(new GenreDto(1, "Genre_1"), new GenreDto(2, "Genre_2"));
+    List<AuthorDto> authors = List.of(new AuthorDto(1L, "Author_1"), new AuthorDto(2L, "Author_2"));
+    List<GenreDto> genres = List.of(new GenreDto(1L, "Genre_1"), new GenreDto(2L, "Genre_2"));
     List<BookDto> books = List.of(
-            new BookDto(1, "Book1", authors.get(0), genres),
-            new BookDto(2, "Book2", authors.get(1), genres)
+            new BookDto(1L, "Book1", authors.get(0), genres),
+            new BookDto(2L, "Book2", authors.get(1), genres)
     );
 
-    List<CommentDto> comments = List.of(new CommentDto(1, "Comment_1"));
+    List<CommentDto> comments = List.of(new CommentDto(1L, "Comment_1"));
 
     @Test
     void shouldRenderBooksPage() throws Exception {

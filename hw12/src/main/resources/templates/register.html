@@ -14,15 +14,17 @@
               margin: 5px 0;
         }
 
+          .errors{
+            color:red;
+        }
+
     </style>
 </head>
 <body>
 <h1 class="center">Please Register</h1>
-<div class="center" th:if="${param.error}">
-    Invalid username and password.
-</div>
 
-<form class="center" th:action="@{/user}" th:method="post" th:object="${userDto}">
+
+<form class="center" th:method="post" th:object="${userDto}">
     <div class="input-div">
         <input type="text" name="username" th:field="*{username}" placeholder="Username"/>
     </div>
@@ -33,7 +35,7 @@
         <input type="password" name="repeatPassword" th:field="*{repeatPassword}" placeholder="Repeat your password"/>
     </div>
     <div class="errors" th:text="${error}">Error</div>
-    <input type="submit" value="Register"/>
+    <button type="submit">Register</button>
 </form>
 </body>
 </html>

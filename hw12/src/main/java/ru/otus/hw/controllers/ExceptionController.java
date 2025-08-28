@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.ModelAndView;
+import ru.otus.hw.exceptions.EntityAlreadyExistsException;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 
 import java.util.Arrays;
@@ -14,6 +15,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 @ControllerAdvice
 public class ExceptionController {
+
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    public ModelAndView handleEntityAlreadyExistsException(EntityAlreadyExistsException ex) {
+        return new ModelAndView("customError", Map.of("errorText", ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
 
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -28,7 +34,8 @@ public class ExceptionController {
 
     @ExceptionHandler(Exception.class)
     public ModelAndView handleException(Exception ex) {
-        return new ModelAndView("customError", Map.of("errorText", Arrays.toString(ex.getStackTrace())),
+        return new ModelAndView("customError", Map.of("errorText",
+                ex.getMessage() + ex.getCause() + Arrays.toString(ex.getStackTrace())),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

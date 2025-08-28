@@ -2,6 +2,7 @@ package ru.otus.hw.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,7 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@WebMvcTest(AuthorController.class)
+@WebMvcTest(value = AuthorController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 public class AuthorControllerTest {
 
     @Autowired
@@ -25,8 +26,8 @@ public class AuthorControllerTest {
     private AuthorService authorService;
 
 
-    private List<AuthorDto> authors = List.of(new AuthorDto(1, "Author_1"),
-            new AuthorDto(2, "Author_2"));
+    private List<AuthorDto> authors = List.of(new AuthorDto(1L, "Author_1"),
+            new AuthorDto(2L, "Author_2"));
 
     @Test
     void shouldRenderAuthorsPage() throws Exception {

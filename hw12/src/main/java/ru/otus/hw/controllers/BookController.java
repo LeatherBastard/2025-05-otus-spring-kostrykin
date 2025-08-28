@@ -61,7 +61,7 @@ public class BookController {
 
     @GetMapping("/book")
     public String addBookPage(Model model) {
-        CreateBookDto bookDto = new CreateBookDto("", 0, Set.of());
+        CreateBookDto bookDto = new CreateBookDto("", 0L, Set.of());
         model.addAttribute("authors", authorService.findAll());
         model.addAttribute("genres", genreService.findAll());
         model.addAttribute("bookDto", bookDto);

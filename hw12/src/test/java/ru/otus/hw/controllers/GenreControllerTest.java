@@ -2,6 +2,7 @@ package ru.otus.hw.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,7 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@WebMvcTest(GenreController.class)
+@WebMvcTest(value = GenreController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 public class GenreControllerTest {
     @Autowired
     private MockMvc mvc;
@@ -24,8 +25,8 @@ public class GenreControllerTest {
     private GenreService genreService;
 
 
-    private List<GenreDto> genres = List.of(new GenreDto(1, "Genre_1"),
-            new GenreDto(2, "Genre_2"));
+    private List<GenreDto> genres = List.of(new GenreDto(1L, "Genre_1"),
+            new GenreDto(2L, "Genre_2"));
 
     @Test
     void shouldRenderGenresPage() throws Exception {
