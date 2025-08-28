@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Main menu</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        .genres {
+            border: 1px solid steelblue;
+            width: 300px;
+            border-collapse: collapse;
+        }
+
+        .genres tr td, th {
+            padding: 5px;
+            border: 1px solid steelblue;
+        }
+
+        .genres td:last-child, td:first-child {
+            width: 50px;
+        }
+
+        .main-menu{
+            padding-top:100px;
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+<h3>Genres:</h3>
+<table class="genres">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="genre : ${genres}" th:object="${genre}">
+        <td th:text="*{id}">1</td>
+        <td th:text="*{name}">Genre_1</td>
+    </tr>
+    </tbody>
+</table>
+
+
+<div class="main-menu">
+    <div><a href="/">Main menu</a></div>
+</div>
+
+</body>
+</html>

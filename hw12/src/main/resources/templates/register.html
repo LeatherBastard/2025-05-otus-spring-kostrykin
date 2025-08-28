@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Please Register</title>
+    <style>
+        .center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+        .input-div{
+              margin: 5px 0;
+        }
+
+          .errors{
+            color:red;
+        }
+
+    </style>
+</head>
+<body>
+<h1 class="center">Please Register</h1>
+
+
+<form class="center" th:method="post" th:object="${userDto}">
+    <div class="input-div">
+        <input type="text" name="username" th:field="*{username}" placeholder="Username"/>
+    </div>
+    <div class="input-div">
+        <input type="password" name="password" th:field="*{password}" placeholder="Password"/>
+    </div>
+    <div class="input-div">
+        <input type="password" name="repeatPassword" th:field="*{repeatPassword}" placeholder="Repeat your password"/>
+    </div>
+    <div class="errors" th:text="${error}">Error</div>
+    <button type="submit">Register</button>
+</form>
+</body>
+</html>
