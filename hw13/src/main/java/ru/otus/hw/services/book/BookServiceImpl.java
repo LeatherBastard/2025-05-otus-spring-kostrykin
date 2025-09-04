@@ -1,6 +1,7 @@
 package ru.otus.hw.services.book;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.BookMapper;
@@ -13,6 +14,7 @@ import ru.otus.hw.models.Genre;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.BookRepository;
 import ru.otus.hw.repositories.GenreRepository;
+import ru.otus.hw.services.acl.AclServiceWrapperService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,8 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
 
+    private final AclServiceWrapperService aclServiceWrapperService;
+
     @Transactional(readOnly = true)
     @Override
     public Optional<BookDto> findById(long id) {
@@ -47,6 +51,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
+    @PreAuthorize("hasRole('ROLE_USER')")
     public BookDto insert(CreateBookDto bookDto) {
         if (isEmpty(bookDto.genreIds())) {
             throw new IllegalArgumentException("Genres ids must not be null");
@@ -62,7 +67,10 @@ public class BookServiceImpl implements BookService {
         }
 
         var book = new Book(0, bookDto.title(), author, genres, new ArrayList<>());
-        return bookMapper.bookToDto(bookRepository.save(book));
+
+        book = bookRepository.save(book);
+        aclServiceWrapperService.createPermission(book);
+        return bookMapper.bookToDto(book);
     }
 
     @Transactional
@@ -92,6 +100,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public void deleteById(long id) {
+        findById(id).orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(id)));
         bookRepository.deleteById(id);
     }
 
