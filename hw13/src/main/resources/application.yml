@@ -4,7 +4,7 @@ spring:
       filter:
         enabled: true
   datasource:
-    url: jdbc:h2:mem:maindb
+    url: jdbc:h2:mem:maindb;MODE=LEGACY
   jpa:
     show-sql: true
     hibernate:
@@ -19,3 +19,12 @@ spring:
     init:
       mode: never
 
+  logging:
+    level:
+        org:
+          springframework:
+            security:
+              acls: DEBUG
+          jdbc:
+            core:
+              JdbcTemplate: DEBUG # Чтобы видеть SQL

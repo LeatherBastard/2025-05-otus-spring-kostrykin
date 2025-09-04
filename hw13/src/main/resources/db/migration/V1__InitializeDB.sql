@@ -99,9 +99,9 @@ values (2,'Nice book'),
 insert into users(username,password,role)
 values('user','$2a$12$LXP.6OLtXOvIaxqVUAg9IOve.Ogc/VAQZbkwpaq8M5veQ.kvN9X4C','ADMIN');
 
-INSERT INTO acl_sid (id, principal, sid) VALUES
-(1, 0, 'ROLE_ADMIN'),
-(2, 0, 'ROLE_USER');
+INSERT INTO acl_sid ( principal, sid) VALUES
+( 0, 'ROLE_ADMIN'),
+( 0, 'ROLE_USER');
 
 INSERT INTO acl_class (id, class) VALUES
 (1, 'ru.otus.hw.models.Book');
