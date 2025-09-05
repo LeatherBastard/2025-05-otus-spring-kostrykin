@@ -55,23 +55,23 @@ class CommentServiceIntegrationTest {
 
     @Test
     void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindById() {
-        CommentDto commentDto = commentService.findById(COMMENT_ID);
+        Comment commentDto = commentService.findById(COMMENT_ID);
         CommentDto expectedCommentDto = commentMapper.commentToDto(expectedComments.get(1));
         assertThat(commentDto).usingRecursiveComparison().isEqualTo(expectedCommentDto);
     }
 
     @Test
     void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindAllByBookId() {
-        List<CommentDto> commentDtos = commentService.findAllByBookId(BOOK_ID);
+        List<Comment> commentDtos = commentService.findAllByBookId(BOOK_ID);
         List<CommentDto> expectedCommentDtos = expectedComments.stream().map(commentMapper::commentToDto).toList();
         assertThat(commentDtos).usingRecursiveComparison().isEqualTo(expectedCommentDtos);
     }
 
     @Test
     void shouldDeleteById() {
-        CommentDto commentDto = commentService.insert(BOOK_ID, new CreateCommentDto("Comment to be deleted"));
-        commentService.deleteById(commentDto.id());
-        CommentDto expectedCommentDto = commentService.findById(commentDto.id());
+        Comment commentDto = commentService.insert(BOOK_ID, new CreateCommentDto("Comment to be deleted"));
+        commentService.deleteById(commentDto.getId());
+        Comment expectedCommentDto = commentService.findById(commentDto.getId());
         assertThat(expectedCommentDto).isNull();
     }
 
@@ -80,10 +80,10 @@ class CommentServiceIntegrationTest {
     class InsertTests {
         @Test
         void shouldInsert() {
-            CommentDto commentDto = commentService.insert(BOOK_ID, new CreateCommentDto("Comment to be inserted"));
-            CommentDto expectedCommentDto = commentService.findById(commentDto.id());
+            Comment commentDto = commentService.insert(BOOK_ID, new CreateCommentDto("Comment to be inserted"));
+            Comment expectedCommentDto = commentService.findById(commentDto.getId());
             assertThat(commentDto).usingRecursiveComparison().isEqualTo(expectedCommentDto);
-            commentService.deleteById(commentDto.id());
+            commentService.deleteById(commentDto.getId());
         }
 
         @Test
@@ -99,16 +99,16 @@ class CommentServiceIntegrationTest {
     class UpdateTests {
         @Test
         void shouldUpdate() {
-            CommentDto commentDto = commentService.insert(BOOK_ID, new CreateCommentDto("Comment to be updated"));
+            Comment commentDto = commentService.insert(BOOK_ID, new CreateCommentDto("Comment to be updated"));
             String updatedText = "UpdatedComment";
-            CommentDto actualCommentDto = commentService.update(new UpdateCommentDto(commentDto.id(), updatedText));
-            CommentDto expectedCommentDto = commentMapper.commentToDto(new Comment(commentDto.id(),
+            Comment  actualCommentDto = commentService.update(new UpdateCommentDto(commentDto.getId(), updatedText));
+            CommentDto expectedCommentDto = commentMapper.commentToDto(new Comment(commentDto.getId(),
                     bookRepository.findById(BOOK_ID).get(),
                     updatedText));
             assertThat(actualCommentDto)
                     .usingRecursiveComparison()
                     .isEqualTo(expectedCommentDto);
-            commentService.deleteById(actualCommentDto.id());
+            commentService.deleteById(actualCommentDto.getId());
         }
 
         @Test

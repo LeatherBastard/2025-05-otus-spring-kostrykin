@@ -6,4 +6,9 @@ import ru.otus.hw.dto.genre.GenreDto;
 import java.util.List;
 
 public record BookDto(Long id, String title, AuthorDto author, List<GenreDto> genres) {
+    public Long getId() {
+        return id;
+    }
+
+
 }

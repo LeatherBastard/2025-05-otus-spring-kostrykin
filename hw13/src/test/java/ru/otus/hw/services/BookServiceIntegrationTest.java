@@ -76,22 +76,22 @@ class BookServiceIntegrationTest {
 
     @Test
     void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindById() {
-        BookDto bookDto = bookService.findById(BOOK_ID).get();
+        Book bookDto = bookService.findById(BOOK_ID).get();
         assertThat(bookDto).usingRecursiveComparison().isEqualTo(bookMapper.bookToDto(expectedBooks.get(2)));
     }
 
     @Test
     void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindAll() {
-        List<BookDto> bookDtos = bookService.findAll();
+        List<Book> bookDtos = bookService.findAll();
         List<BookDto> expectedBookDtos = expectedBooks.stream().map(bookMapper::bookToDto).toList();
         assertThat(bookDtos).usingRecursiveComparison().isEqualTo(expectedBookDtos);
     }
 
     @Test
     void shouldDeleteById() {
-        BookDto bookDto = bookService.insert(new CreateBookDto("Book", 2L, Set.of(2L, 5L)));
-        bookService.deleteById(bookDto.id());
-        Optional<BookDto> expectedBookDto = bookService.findById(bookDto.id());
+        Book bookDto = bookService.insert(new CreateBookDto("Book", 2L, Set.of(2L, 5L)));
+        bookService.deleteById(bookDto.getId());
+        Optional<Book> expectedBookDto = bookService.findById(bookDto.getId());
         assertThat(expectedBookDto.isEmpty());
     }
 
@@ -99,10 +99,10 @@ class BookServiceIntegrationTest {
     class InsertTests {
         @Test
         void shouldInsert() {
-            BookDto bookDto = bookService.insert(new CreateBookDto("Book", 2L, Set.of(2L, 5L)));
-            BookDto expectedBookDto = bookService.findById(bookDto.id()).get();
+            Book bookDto = bookService.insert(new CreateBookDto("Book", 2L, Set.of(2L, 5L)));
+            Book expectedBookDto = bookService.findById(bookDto.getId()).get();
             assertThat(bookDto).usingRecursiveComparison().isEqualTo(expectedBookDto);
-            bookService.deleteById(bookDto.id());
+            bookService.deleteById(bookDto.getId());
         }
 
         @Test
@@ -133,13 +133,13 @@ class BookServiceIntegrationTest {
     class UpdateTests {
         @Test
         void shouldUpdate() {
-            BookDto bookDto = bookService.insert(new CreateBookDto("Book", 2L, Set.of(2L, 5L)));
+            Book bookDto = bookService.insert(new CreateBookDto("Book", 2L, Set.of(2L, 5L)));
             String updatedTitle = "UpdatedBook";
             long updatedAuthorId = 3L;
             Set<Long> updatedGenreIds = Set.of(5L, 6L);
-            BookDto actualBookDto = bookService.update(new UpdateBookDto(bookDto.id(), updatedTitle
+            Book actualBookDto = bookService.update(new UpdateBookDto(bookDto.getId(), updatedTitle
                     , updatedAuthorId, updatedGenreIds));
-            BookDto expectedBookDto = bookMapper.bookToDto(new Book(actualBookDto.id(),
+            BookDto expectedBookDto = bookMapper.bookToDto(new Book(actualBookDto.getId(),
                     updatedTitle,
                     authorRepository.findById(updatedAuthorId).get(),
                     List.of(new Genre(5, "Genre_5"), new Genre(6, "Genre_6")),
@@ -147,7 +147,7 @@ class BookServiceIntegrationTest {
             assertThat(actualBookDto)
                     .usingRecursiveComparison()
                     .isEqualTo(expectedBookDto);
-            bookService.deleteById(actualBookDto.id());
+            bookService.deleteById(actualBookDto.getId());
         }
 
         @Test

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.otus.hw.config.WebSecurityConfiguration;
 import ru.otus.hw.controllers.AuthorController;
+import ru.otus.hw.converters.AuthorMapper;
 import ru.otus.hw.services.author.AuthorService;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -15,7 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthorController.class)
-@Import(WebSecurityConfiguration.class)
+@Import({WebSecurityConfiguration.class, AuthorMapper.class})
 public class AuthorControllerSecurityTest {
     @Autowired
     private MockMvc mvc;

@@ -5,14 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.otus.hw.dto.author.AuthorDto;
-import ru.otus.hw.dto.book.BookDto;
+import ru.otus.hw.converters.AuthorMapper;
+import ru.otus.hw.converters.BookMapper;
+import ru.otus.hw.converters.CommentMapper;
+import ru.otus.hw.converters.GenreMapper;
 import ru.otus.hw.dto.book.CreateBookDto;
 import ru.otus.hw.dto.book.UpdateBookDto;
-import ru.otus.hw.dto.comment.CommentDto;
-import ru.otus.hw.dto.genre.GenreDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
+import ru.otus.hw.models.Author;
+import ru.otus.hw.models.Book;
+import ru.otus.hw.models.Comment;
+import ru.otus.hw.models.Genre;
 import ru.otus.hw.services.author.AuthorService;
 import ru.otus.hw.services.book.BookService;
 import ru.otus.hw.services.comment.CommentService;
@@ -27,9 +32,23 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(value = BookController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@Import({CommentMapper.class, BookMapper.class, AuthorMapper.class, GenreMapper.class})
 public class BookControllerTest {
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private BookMapper bookMapper;
+
+    @Autowired
+    private AuthorMapper authorMapper;
+
+    @Autowired
+    private GenreMapper genreMapper;
+
+    @Autowired
+    private CommentMapper commentMapper;
+
     @MockBean
     private BookService bookService;
 
@@ -42,21 +61,21 @@ public class BookControllerTest {
     @MockBean
     private CommentService commentService;
 
-    List<AuthorDto> authors = List.of(new AuthorDto(1L, "Author_1"), new AuthorDto(2L, "Author_2"));
-    List<GenreDto> genres = List.of(new GenreDto(1L, "Genre_1"), new GenreDto(2L, "Genre_2"));
-    List<BookDto> books = List.of(
-            new BookDto(1L, "Book1", authors.get(0), genres),
-            new BookDto(2L, "Book2", authors.get(1), genres)
+    List<Author> authors = List.of(new Author(1L, "Author_1"), new Author(2L, "Author_2"));
+    List<Genre> genres = List.of(new Genre(1L, "Genre_1"), new Genre(2L, "Genre_2"));
+    List<Book> books = List.of(
+            new Book(1L, "Book1", authors.get(0), genres, null),
+            new Book(2L, "Book2", authors.get(1), genres, null)
     );
 
-    List<CommentDto> comments = List.of(new CommentDto(1L, "Comment_1"));
+    List<Comment> comments = List.of(new Comment(1L, books.get(0), "Comment_1"));
 
     @Test
     void shouldRenderBooksPage() throws Exception {
         when(bookService.findAll()).thenReturn(books);
         mvc.perform(get("/books"))
                 .andExpect(view().name("books"))
-                .andExpect(model().attribute("books", books));
+                .andExpect(model().attribute("books", books.stream().map(bookMapper::bookToDto).toList()));
     }
 
     @Test
@@ -65,8 +84,9 @@ public class BookControllerTest {
         when(commentService.findAllByBookId(1L)).thenReturn(comments);
         mvc.perform(get("/books/").param("bookId", "1"))
                 .andExpect(view().name("book"))
-                .andExpect(model().attribute("book", books.get(0)))
-                .andExpect(model().attribute("comments", comments));
+                .andExpect(model().attribute("book", bookMapper.bookToDto(books.get(0))))
+                .andExpect(model().attribute("comments", comments.stream().map(commentMapper::commentToDto)
+                        .toList()));
     }
 
     @Test
@@ -77,10 +97,10 @@ public class BookControllerTest {
         when(bookService.findById(1L)).thenReturn(Optional.of(books.get(0)));
         mvc.perform(get("/books/1/edit"))
                 .andExpect(view().name("editbook"))
-                .andExpect(model().attribute("authors", authors))
-                .andExpect(model().attribute("genres", genres))
-                .andExpect(model().attribute("comments", comments))
-                .andExpect(model().attribute("book", books.get(0)));
+                .andExpect(model().attribute("authors", authors.stream().map(authorMapper::authorToDto).toList()))
+                .andExpect(model().attribute("genres", genres.stream().map(genreMapper::genreToDto).toList()))
+                .andExpect(model().attribute("comments", comments.stream().map(commentMapper::commentToDto).toList()))
+                .andExpect(model().attribute("book", bookMapper.bookToDto(books.get(0))));
     }
 
     @Test
@@ -95,9 +115,9 @@ public class BookControllerTest {
 
     @Test
     void shouldAddBookAndRedirectToContextPath() throws Exception {
-        BookDto book = books.get(0);
-        CreateBookDto createBookDto = new CreateBookDto(book.title(), book.author().id(),
-                Set.of(genres.get(0).id(), genres.get(1).id()));
+        Book book = books.get(0);
+        CreateBookDto createBookDto = new CreateBookDto(book.getTitle(), book.getAuthor().getId(),
+                Set.of(genres.get(0).getId(), genres.get(1).getId()));
         mvc.perform(post("/book").flashAttr("bookDto", createBookDto))
                 .andExpect(view().name("redirect:/"));
         verify(bookService, times(1)).insert(any(CreateBookDto.class));
@@ -106,9 +126,9 @@ public class BookControllerTest {
 
     @Test
     void shouldUpdateBookAndRedirectToContextPath() throws Exception {
-        BookDto book = books.get(0);
-        UpdateBookDto updateBookDto = new UpdateBookDto(book.id(), book.title(), book.author().id(),
-                Set.of(genres.get(0).id(), genres.get(1).id()));
+        Book book = books.get(0);
+        UpdateBookDto updateBookDto = new UpdateBookDto(book.getId(), book.getTitle(), book.getAuthor().getId(),
+                Set.of(genres.get(0).getId(), genres.get(1).getId()));
         mvc.perform(put("/books/1/edit").flashAttr("bookDto", updateBookDto))
                 .andExpect(view().name("redirect:/"));
         verify(bookService, times(1)).update(any(UpdateBookDto.class));

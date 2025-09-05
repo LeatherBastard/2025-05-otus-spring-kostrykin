@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.otus.hw.config.WebSecurityConfiguration;
 import ru.otus.hw.controllers.GenreController;
+import ru.otus.hw.converters.GenreMapper;
 import ru.otus.hw.services.genre.GenreService;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -15,7 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(GenreController.class)
-@Import(WebSecurityConfiguration.class)
+@Import({WebSecurityConfiguration.class, GenreMapper.class})
 public class GenreControllerSecurityTest {
     @Autowired
     private MockMvc mvc;
