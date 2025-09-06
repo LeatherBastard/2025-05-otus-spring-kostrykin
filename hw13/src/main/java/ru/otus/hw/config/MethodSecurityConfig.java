@@ -5,7 +5,7 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @Configuration
-@EnableMethodSecurity(prePostEnabled = true) // Активируйте @PreAuthorize, @PostAuthorize и др.
+@EnableMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig {
 
     private final MethodSecurityExpressionHandler methodSecurityExpressionHandler;
@@ -14,5 +14,4 @@ public class MethodSecurityConfig {
         this.methodSecurityExpressionHandler = methodSecurityExpressionHandler;
     }
 
-    // ExpressionHandler будет автоматически использоваться Spring'ом
 }
