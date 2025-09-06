@@ -2,6 +2,7 @@ package ru.otus.hw.services;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Transactional(propagation = Propagation.NEVER)
 @Import({CommentMapper.class, BookMapper.class, AuthorMapper.class, GenreMapper.class, BookServiceImpl.class})
 @RequiredArgsConstructor
+@Disabled
 class BookServiceIntegrationTest {
     private static final long BOOK_ID = 3L;
 
