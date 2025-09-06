@@ -1,6 +1,5 @@
 package ru.otus.hw.services.comment;
 
-import ru.otus.hw.dto.comment.CommentDto;
 import ru.otus.hw.dto.comment.CreateCommentDto;
 import ru.otus.hw.dto.comment.UpdateCommentDto;
 import ru.otus.hw.models.Comment;

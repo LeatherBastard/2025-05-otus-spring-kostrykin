@@ -98,7 +98,8 @@ public class BookController {
                 new EntityNotFoundException(String.format("Book with id %d was not found", bookId))));
         model.addAttribute("authors", authorService.findAll().stream().map(authorMapper::authorToDto).toList());
         model.addAttribute("genres", genreService.findAll().stream().map(genreMapper::genreToDto).toList());
-        model.addAttribute("comments", commentService.findAllByBookId(bookId).stream().map(commentMapper::commentToDto).toList());
+        model.addAttribute("comments", commentService.findAllByBookId(bookId).stream()
+                .map(commentMapper::commentToDto).toList());
         model.addAttribute("book", book);
         model.addAttribute("bookDto",
                 new UpdateBookDto(book.id(),

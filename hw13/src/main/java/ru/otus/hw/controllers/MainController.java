@@ -13,7 +13,6 @@ import ru.otus.hw.dto.user.CreateUserDto;
 import ru.otus.hw.services.user.UserService;
 
 
-
 @Controller
 @RequiredArgsConstructor
 public class MainController {

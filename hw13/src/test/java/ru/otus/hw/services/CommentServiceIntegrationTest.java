@@ -101,7 +101,7 @@ class CommentServiceIntegrationTest {
         void shouldUpdate() {
             Comment commentDto = commentService.insert(BOOK_ID, new CreateCommentDto("Comment to be updated"));
             String updatedText = "UpdatedComment";
-            Comment  actualCommentDto = commentService.update(new UpdateCommentDto(commentDto.getId(), updatedText));
+            Comment actualCommentDto = commentService.update(new UpdateCommentDto(commentDto.getId(), updatedText));
             CommentDto expectedCommentDto = commentMapper.commentToDto(new Comment(commentDto.getId(),
                     bookRepository.findById(BOOK_ID).get(),
                     updatedText));

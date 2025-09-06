@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.otus.hw.config.WebSecurityConfiguration;
 import ru.otus.hw.controllers.BookController;
@@ -27,12 +29,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(BookController.class)
 @Import({WebSecurityConfiguration.class, CommentMapper.class, BookMapper.class, AuthorMapper.class, GenreMapper.class})
@@ -164,6 +166,114 @@ public class BookControllerSecurityTest {
         mvc.perform(delete("/books/1"))
                 .andExpect(status().is3xxRedirection());
         verify(bookService, times(0)).deleteById(anyLong());
+    }
+
+
+    @Test
+    @WithMockUser(username = "user1")
+    void shouldNotAccessBookWhenNoReadPermission() throws Exception {
+        when(bookService.findById(1L)).thenThrow(new AccessDeniedException("Access Denied"));
+
+        mvc.perform(get("/books/").param("bookId", "1"))
+                .andExpect(status().isForbidden())
+                .andExpect(view().name("customError"));
+    }
+
+    @Test
+    @WithMockUser(username = "user1")
+    void shouldNotUpdateBookWhenNoAdministrationPermission() throws Exception {
+        Book book = books.get(0);
+        UpdateBookDto updateBookDto = new UpdateBookDto(book.getId(), book.getTitle(), book.getAuthor().getId(),
+                Set.of(genres.get(0).getId(), genres.get(1).getId()));
+
+        doThrow(new AccessDeniedException("Access Denied"))
+                .when(bookService).update(any(UpdateBookDto.class));
+
+        mvc.perform(put("/books/1/edit").flashAttr("bookDto", updateBookDto))
+                .andExpect(status().isForbidden())
+                .andExpect(view().name("customError"));
+    }
+
+    @Test
+    @WithMockUser(username = "user1")
+    void shouldNotDeleteBookWhenNoAdministrationPermission() throws Exception {
+        doThrow(new AccessDeniedException("Access Denied"))
+                .when(bookService).deleteById(anyLong());
+
+        mvc.perform(delete("/books/1"))
+                .andExpect(status().isForbidden())
+                .andExpect(view().name("customError"));
+    }
+
+
+    @Test
+    @WithMockUser(username = "user1")
+    void shouldReturnOnlyPermittedBooks() throws Exception {
+        when(bookService.findAll()).thenReturn(List.of(books.get(0)));
+
+        mvc.perform(get("/books"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("books"))
+                .andExpect(model().attribute("books", hasSize(1)));
+    }
+
+    @Test
+    @WithMockUser(username = "user1")
+    void shouldNotRenderEditPageWhenNoReadPermission() throws Exception {
+        when(bookService.findById(1L)).thenThrow(new AccessDeniedException("Access Denied"));
+
+        mvc.perform(get("/books/1/edit"))
+                .andExpect(status().isForbidden())
+                .andExpect(view().name("customError"));
+    }
+
+    @Test
+    @WithMockUser(username = "user1")
+    void shouldHandleAccessDeniedExceptionProperly() throws Exception {
+        when(bookService.findById(1L)).thenThrow(new AccessDeniedException("Custom access denied message"));
+
+        mvc.perform(get("/books/").param("bookId", "1"))
+                .andExpect(status().isForbidden())
+                .andExpect(view().name("customError"))
+                .andExpect(model().attribute("errorText", "Custom access denied message"));
+    }
+
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void shouldAllowAccessToAdminRole() throws Exception {
+        when(bookService.findById(1L)).thenReturn(Optional.of(books.get(0)));
+        when(authorService.findAll()).thenReturn(authors);
+        when(genreService.findAll()).thenReturn(genres);
+        when(commentService.findAllByBookId(1L)).thenReturn(comments);
+
+        mvc.perform(get("/books/1/edit"))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void shouldAllowBookCreationForUserRole() throws Exception {
+        Book book = books.get(0);
+        CreateBookDto createBookDto = new CreateBookDto(book.getTitle(), book.getAuthor().getId(),
+                Set.of(genres.get(0).getId(), genres.get(1).getId()));
+
+        mvc.perform(post("/book").flashAttr("bookDto", createBookDto))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/"));
+
+        verify(bookService, times(1)).insert(any(CreateBookDto.class));
+    }
+
+    @Test
+    @WithMockUser(username = "user1")
+    void shouldHandleNotFoundExceptionWithProperSecurity() throws Exception {
+        when(bookService.findById(999L)).thenReturn(Optional.empty());
+
+        mvc.perform(get("/books/").param("bookId", "999"))
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("customError"));
     }
 
 

@@ -100,7 +100,8 @@ public class BookServiceImpl implements BookService {
     @Override
     @PreAuthorize("hasPermission(#id,'ru.otus.hw.models.Book','ADMINISTRATION')")
     public void deleteById(long id) {
-        aclServiceWrapperService.deletePermissions(findById(id).orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(id))));
+        aclServiceWrapperService.deletePermissions(findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(id))));
         bookRepository.deleteById(id);
     }
 

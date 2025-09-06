@@ -27,7 +27,6 @@ public class AclServiceWrapperServiceImpl implements AclServiceWrapperService {
     public void createPermission(Object object) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         final Sid owner = new PrincipalSid(authentication);
-        final Sid userRole = new GrantedAuthoritySid("ROLE_USER");
         ObjectIdentity oid = new ObjectIdentityImpl(object);
         final Sid admin = new GrantedAuthoritySid("ROLE_ADMIN");
 

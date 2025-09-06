@@ -34,7 +34,7 @@ public class AclConfig {
     @Bean
     public SpringCacheBasedAclCache aclCache() {
         return new SpringCacheBasedAclCache(
-                cacheManager().getCache("acl_cache"), // Используем менеджер кэшей Spring
+                cacheManager().getCache("acl_cache"),
                 permissionGrantingStrategy(),
                 aclAuthorizationStrategy()
         );
@@ -42,7 +42,6 @@ public class AclConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        // Для продакшена рассмотрите использование более мощного CacheManager (например, Redis)
         return new ConcurrentMapCacheManager("acl_cache");
     }
 
@@ -53,9 +52,8 @@ public class AclConfig {
 
     @Bean
     public AclAuthorizationStrategy aclAuthorizationStrategy() {
-        // Права, необходимые для операций с ACL (не для доступа к объектам!)
         return new AclAuthorizationStrategyImpl(
-                new SimpleGrantedAuthority("ROLE_ACL_ADMIN") // Роль для администрирования ACL
+                new SimpleGrantedAuthority("ROLE_ACL_ADMIN")
         );
     }
 
@@ -71,17 +69,13 @@ public class AclConfig {
 
     @Bean
     public JdbcMutableAclService aclService() {
-        JdbcMutableAclService service = new JdbcMutableAclService(
+        return new JdbcMutableAclService(
                 dataSource,
                 lookupStrategy(),
                 aclCache()
         );
-        // Опционально: отключите поиск по классам-родителям, если не используете наследование
-        // service.setAclClassIdSupported(false);
-        return service;
     }
 
-    // Конфигурация для использования выражений @PreAuthorize и hasPermission()
     @Bean
     public MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
         DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
