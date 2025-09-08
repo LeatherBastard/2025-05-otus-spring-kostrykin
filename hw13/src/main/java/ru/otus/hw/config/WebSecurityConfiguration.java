@@ -22,6 +22,7 @@ public class WebSecurityConfiguration {
                         ))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/register").permitAll()
+                        .requestMatchers("/book").hasAnyRole("ADMIN", "USER")
                         .anyRequest().authenticated())
                 .formLogin(form -> form.loginPage("/login").permitAll())
         ;

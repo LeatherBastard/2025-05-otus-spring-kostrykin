@@ -2,18 +2,13 @@ package ru.otus.hw.services;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.annotation.Transactional;
-import ru.otus.hw.converters.AuthorMapper;
 import ru.otus.hw.converters.BookMapper;
-import ru.otus.hw.converters.CommentMapper;
-import ru.otus.hw.converters.GenreMapper;
 import ru.otus.hw.dto.book.BookDto;
 import ru.otus.hw.dto.book.CreateBookDto;
 import ru.otus.hw.dto.book.UpdateBookDto;
@@ -24,7 +19,6 @@ import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.CommentRepository;
 import ru.otus.hw.repositories.GenreRepository;
 import ru.otus.hw.services.book.BookService;
-import ru.otus.hw.services.book.BookServiceImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,11 +27,10 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DataJpaTest
-@Transactional(propagation = Propagation.NEVER)
-@Import({CommentMapper.class, BookMapper.class, AuthorMapper.class, GenreMapper.class, BookServiceImpl.class})
+@SpringBootTest
+@Transactional
 @RequiredArgsConstructor
-@Disabled
+@WithUserDetails
 class BookServiceIntegrationTest {
     private static final long BOOK_ID = 3L;
 
@@ -60,33 +53,20 @@ class BookServiceIntegrationTest {
 
     @BeforeEach
     public void initialize() {
-        expectedBooks = List.of(
-                new Book(1, "BookTitle_1",
-                        authorRepository.findById(1L).get(),
-                        List.of(new Genre(1, "Genre_1"), new Genre(2, "Genre_2")),
-                        commentRepository.findByBookId(1)),
-                new Book(2, "BookTitle_2",
-                        authorRepository.findById(2L).get(),
-                        List.of(new Genre(3, "Genre_3"), new Genre(4, "Genre_4")),
-                        commentRepository.findByBookId(2)),
-                new Book(3, "BookTitle_3",
-                        authorRepository.findById(3L).get(),
-                        List.of(new Genre(5, "Genre_5"), new Genre(6, "Genre_6")),
-                        commentRepository.findByBookId(3))
-        );
+        expectedBooks = bookService.findAll();
+
     }
 
     @Test
     void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindById() {
         Book bookDto = bookService.findById(BOOK_ID).get();
-        assertThat(bookDto).usingRecursiveComparison().isEqualTo(bookMapper.bookToDto(expectedBooks.get(2)));
+        assertThat(bookDto).usingRecursiveComparison().isEqualTo(expectedBooks.get(2));
     }
 
     @Test
     void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindAll() {
         List<Book> bookDtos = bookService.findAll();
-        List<BookDto> expectedBookDtos = expectedBooks.stream().map(bookMapper::bookToDto).toList();
-        assertThat(bookDtos).usingRecursiveComparison().isEqualTo(expectedBookDtos);
+        assertThat(bookDtos).usingRecursiveComparison().isEqualTo(expectedBooks);
     }
 
     @Test

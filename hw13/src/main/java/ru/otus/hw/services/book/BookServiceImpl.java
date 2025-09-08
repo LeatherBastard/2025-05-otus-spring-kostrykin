@@ -50,7 +50,6 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public Book insert(CreateBookDto bookDto) {
         if (isEmpty(bookDto.genreIds())) {
             throw new IllegalArgumentException("Genres ids must not be null");

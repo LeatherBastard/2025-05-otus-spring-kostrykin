@@ -170,7 +170,7 @@ public class BookControllerSecurityTest {
 
 
     @Test
-    @WithMockUser(username = "user1")
+    @WithMockUser(username = "user1",roles = "USER")
     void shouldNotAccessBookWhenNoReadPermission() throws Exception {
         when(bookService.findById(1L)).thenThrow(new AccessDeniedException("Access Denied"));
 
@@ -180,7 +180,7 @@ public class BookControllerSecurityTest {
     }
 
     @Test
-    @WithMockUser(username = "user1")
+    @WithMockUser(username = "user1",roles = "USER")
     void shouldNotUpdateBookWhenNoAdministrationPermission() throws Exception {
         Book book = books.get(0);
         UpdateBookDto updateBookDto = new UpdateBookDto(book.getId(), book.getTitle(), book.getAuthor().getId(),
@@ -195,7 +195,7 @@ public class BookControllerSecurityTest {
     }
 
     @Test
-    @WithMockUser(username = "user1")
+    @WithMockUser(username = "user1", roles = "USER")
     void shouldNotDeleteBookWhenNoAdministrationPermission() throws Exception {
         doThrow(new AccessDeniedException("Access Denied"))
                 .when(bookService).deleteById(anyLong());
@@ -207,7 +207,7 @@ public class BookControllerSecurityTest {
 
 
     @Test
-    @WithMockUser(username = "user1")
+    @WithMockUser(username = "user1",roles = "USER")
     void shouldReturnOnlyPermittedBooks() throws Exception {
         when(bookService.findAll()).thenReturn(List.of(books.get(0)));
 
@@ -218,7 +218,7 @@ public class BookControllerSecurityTest {
     }
 
     @Test
-    @WithMockUser(username = "user1")
+    @WithMockUser(username = "user1",roles = "USER")
     void shouldNotRenderEditPageWhenNoReadPermission() throws Exception {
         when(bookService.findById(1L)).thenThrow(new AccessDeniedException("Access Denied"));
 
@@ -228,7 +228,7 @@ public class BookControllerSecurityTest {
     }
 
     @Test
-    @WithMockUser(username = "user1")
+    @WithMockUser(username = "user1",roles = "USER")
     void shouldHandleAccessDeniedExceptionProperly() throws Exception {
         when(bookService.findById(1L)).thenThrow(new AccessDeniedException("Custom access denied message"));
 
@@ -267,7 +267,7 @@ public class BookControllerSecurityTest {
     }
 
     @Test
-    @WithMockUser(username = "user1")
+    @WithMockUser(username = "user1",roles = "USER")
     void shouldHandleNotFoundExceptionWithProperSecurity() throws Exception {
         when(bookService.findById(999L)).thenReturn(Optional.empty());
 
