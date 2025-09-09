@@ -6,31 +6,32 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.BookMapper;
-import ru.otus.hw.dto.book.BookDto;
 import ru.otus.hw.dto.book.CreateBookDto;
 import ru.otus.hw.dto.book.UpdateBookDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
+import ru.otus.hw.models.User;
 import ru.otus.hw.repositories.AuthorRepository;
 import ru.otus.hw.repositories.CommentRepository;
 import ru.otus.hw.repositories.GenreRepository;
+import ru.otus.hw.repositories.UserRepository;
 import ru.otus.hw.services.book.BookService;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
 @RequiredArgsConstructor
-@WithUserDetails
+@WithMockUser(roles = "ADMIN")
 class BookServiceIntegrationTest {
     private static final long BOOK_ID = 3L;
 
@@ -44,6 +45,9 @@ class BookServiceIntegrationTest {
     private CommentRepository commentRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private BookService bookService;
 
     @Autowired
@@ -54,6 +58,14 @@ class BookServiceIntegrationTest {
     @BeforeEach
     public void initialize() {
         expectedBooks = bookService.findAll();
+
+        if (userRepository.findByUsername("Mark").isEmpty()) {
+            User user = new User();
+            user.setUsername("Mark");
+            user.setPassword("password");
+            user.setRole("USER");
+            userRepository.save(user);
+        }
 
     }
 
@@ -67,14 +79,6 @@ class BookServiceIntegrationTest {
     void shouldNotThrowLazyExceptionWhenAccessingLazyFieldsFindAll() {
         List<Book> bookDtos = bookService.findAll();
         assertThat(bookDtos).usingRecursiveComparison().isEqualTo(expectedBooks);
-    }
-
-    @Test
-    void shouldDeleteById() {
-        Book bookDto = bookService.insert(new CreateBookDto("Book", 2L, Set.of(2L, 5L)));
-        bookService.deleteById(bookDto.getId());
-        Optional<Book> expectedBookDto = bookService.findById(bookDto.getId());
-        assertThat(expectedBookDto.isEmpty());
     }
 
     @Nested
@@ -121,11 +125,11 @@ class BookServiceIntegrationTest {
             Set<Long> updatedGenreIds = Set.of(5L, 6L);
             Book actualBookDto = bookService.update(new UpdateBookDto(bookDto.getId(), updatedTitle
                     , updatedAuthorId, updatedGenreIds));
-            BookDto expectedBookDto = bookMapper.bookToDto(new Book(actualBookDto.getId(),
+            Book expectedBookDto = new Book(actualBookDto.getId(),
                     updatedTitle,
                     authorRepository.findById(updatedAuthorId).get(),
                     List.of(new Genre(5, "Genre_5"), new Genre(6, "Genre_6")),
-                    null));
+                    new ArrayList<>());
             assertThat(actualBookDto)
                     .usingRecursiveComparison()
                     .isEqualTo(expectedBookDto);
@@ -155,6 +159,26 @@ class BookServiceIntegrationTest {
                     .isExactlyInstanceOf(EntityNotFoundException.class)
                     .hasMessage("One or all genres with ids [] not found");
         }
+    }
+
+    @Test
+    void shouldAddAndDeleteBookWithoutAccessDeniedException() {
+        assertThatNoException()
+                .isThrownBy(() ->
+                {
+                    Book book = bookService.insert(new CreateBookDto("Book", 2L, Set.of(2L, 5L)));
+                    bookService.deleteById(book.getId());
+                });
+    }
+
+    @Test
+    @WithMockUser(username = "Mark", roles = {"USER"})
+    void shouldThrowAccessDeniedExceptionWhenHaveNoRightsOnBook() {
+        assertThatThrownBy(() -> bookService.deleteById(BOOK_ID))
+                .isExactlyInstanceOf(AuthorizationDeniedException.class);
+        assertThatThrownBy(() -> bookService.update(new UpdateBookDto(3L, "Book", 2L, Set.of(3L, 4L))))
+                .isExactlyInstanceOf(AuthorizationDeniedException.class);
+
     }
 
 

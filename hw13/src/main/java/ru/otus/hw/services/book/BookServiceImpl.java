@@ -1,6 +1,7 @@
 package ru.otus.hw.services.book;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class BookServiceImpl implements BookService {
     private final AclServiceWrapperService aclServiceWrapperService;
 
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#id,'ru.otus.hw.models.Book','READ')")
+    @PostAuthorize("hasPermission(#id,'ru.otus.hw.models.Book','READ')")
     @Override
     public Optional<Book> findById(long id) {
         var book = bookRepository.findById(id).orElse(null);
@@ -73,7 +74,7 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    @PreAuthorize("hasPermission(#bookDto.id,'ru.otus.hw.models.Book', 'ADMINISTRATION')")
+    @PostAuthorize("hasPermission(#bookDto.id,'ru.otus.hw.models.Book', 'ADMINISTRATION')")
     public Book update(UpdateBookDto bookDto) {
         var updateBook = bookRepository.findById(bookDto.id())
                 .orElseThrow(() -> new EntityNotFoundException("Book with id %s not found".formatted(bookDto.id())));
