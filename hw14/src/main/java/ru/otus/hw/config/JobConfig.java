@@ -11,14 +11,11 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.data.MongoItemWriter;
-import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.JpaCursorItemReader;
-import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.transaction.PlatformTransactionManager;
 import ru.otus.hw.models.h2.Author;
 import ru.otus.hw.models.h2.Book;
@@ -28,8 +25,6 @@ import ru.otus.hw.models.mongo.AuthorDocument;
 import ru.otus.hw.models.mongo.BookDocument;
 import ru.otus.hw.models.mongo.CommentDocument;
 import ru.otus.hw.models.mongo.GenreDocument;
-
-import javax.sql.DataSource;
 
 @Configuration
 @EnableBatchProcessing

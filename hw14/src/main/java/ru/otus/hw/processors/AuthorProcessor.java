@@ -15,6 +15,6 @@ public class AuthorProcessor implements ItemProcessor<Author, AuthorDocument> {
 
     @Override
     public AuthorDocument process(Author author) throws Exception {
-       return authorConverter.authorToAuthorDocument(author);
+        return authorConverter.authorToAuthorDocument(author);
     }
 }

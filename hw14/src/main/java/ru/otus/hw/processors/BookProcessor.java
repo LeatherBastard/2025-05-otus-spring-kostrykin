@@ -7,8 +7,6 @@ import ru.otus.hw.converters.BookConverter;
 import ru.otus.hw.models.h2.Book;
 import ru.otus.hw.models.mongo.BookDocument;
 
-import javax.sql.DataSource;
-
 @Component
 @RequiredArgsConstructor
 public class BookProcessor implements ItemProcessor<Book, BookDocument> {
