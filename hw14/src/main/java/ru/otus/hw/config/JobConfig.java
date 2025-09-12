@@ -174,6 +174,7 @@ public class JobConfig {
                 .next(migrateGenresStep())
                 .next(migrateBooksStep())
                 .next(migrateCommentsStep())
+                .preventRestart()
                 .build();
     }
 
