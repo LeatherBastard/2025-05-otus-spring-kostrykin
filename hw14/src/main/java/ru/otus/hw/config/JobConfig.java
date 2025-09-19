@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -15,6 +17,7 @@ import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import ru.otus.hw.models.h2.Author;
@@ -25,6 +28,7 @@ import ru.otus.hw.models.mongo.AuthorDocument;
 import ru.otus.hw.models.mongo.BookDocument;
 import ru.otus.hw.models.mongo.CommentDocument;
 import ru.otus.hw.models.mongo.GenreDocument;
+
 
 @Configuration
 @EnableBatchProcessing
@@ -165,15 +169,23 @@ public class JobConfig {
                 .build();
     }
 
+    @Bean
+    public Flow parallelFlows() {
+        Flow authorsFlow = new FlowBuilder<Flow>("authorsFlow").from(migrateAuthorsStep()).end();
+        Flow genresFlow = new FlowBuilder<Flow>("genresFlow").from(migrateGenresStep()).end();
+        return new FlowBuilder<Flow>("parallelFlows").split(new SimpleAsyncTaskExecutor())
+                .add(authorsFlow, genresFlow).build();
+    }
+
 
     @Bean
     public Job libraryMigrationJob() {
         return new JobBuilder("libraryMigrationJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
-                .start(migrateAuthorsStep())
-                .next(migrateGenresStep())
+                .start(parallelFlows())
                 .next(migrateBooksStep())
                 .next(migrateCommentsStep())
+                .end()
                 .preventRestart()
                 .build();
     }
