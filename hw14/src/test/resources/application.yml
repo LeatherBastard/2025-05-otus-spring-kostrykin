@@ -7,6 +7,10 @@ spring:
     command:
       version:
         enabled: false
+  batch:
+    job:
+      enabled: false
+
 de:
   flapdoodle:
     mongodb:
