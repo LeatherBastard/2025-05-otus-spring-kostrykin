@@ -14,7 +14,7 @@ public class AuthorConverter {
 
     public AuthorDocument authorToAuthorDocument(Author author) {
         AuthorDocument authorDocument = new AuthorDocument();
-        authorDocument.setId(idCache.putId(author.getId()+Author.class.getName()));
+        authorDocument.setId(idCache.putId(author.getId() + Author.class.getName()));
         authorDocument.setFullName(author.getFullName());
         return authorDocument;
     }

@@ -4,11 +4,17 @@ spring:
       enabled: false
     script:
       enabled: false
+    command:
+      version:
+        enabled: false
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 4.7.0
 
   data:
     mongodb:
-      uri: mongodb://admin:password@localhost:27017/library?authSource=admin
       host: localhost
-      port: 27017
       database: library
-      authentication-database: admin
+      port: 0

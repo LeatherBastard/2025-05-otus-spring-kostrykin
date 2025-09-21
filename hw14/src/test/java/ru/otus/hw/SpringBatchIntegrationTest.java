@@ -19,9 +19,10 @@ import ru.otus.hw.models.mongo.GenreDocument;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 @SpringBatchTest
 @SpringBootTest
-public class SpringBatchIntegrationTest {
+class SpringBatchIntegrationTest {
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -30,7 +31,7 @@ public class SpringBatchIntegrationTest {
     private JobLauncherTestUtils jobLauncherTestUtils;
 
     @Test
-    public void testLibraryMigration() throws Exception {
+    void testLibraryMigration() throws Exception {
 
         JobParameters jobParameters = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
@@ -38,55 +39,56 @@ public class SpringBatchIntegrationTest {
 
         JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
 
-        // Проверка статуса выполнения
         assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());
 
-        // Проверка миграции авторов
         List<AuthorDocument> authors = mongoTemplate.findAll(AuthorDocument.class, "authors");
-        assertEquals(2, authors.size());
-        assertTrue(authors.stream().anyMatch(a -> "Лев Толстой".equals(a.getFullName())));
-        assertTrue(authors.stream().anyMatch(a -> "Фёдор Достоевский".equals(a.getFullName())));
+        assertEquals(3, authors.size());
+        assertTrue(authors.stream().anyMatch(a -> "Author_1".equals(a.getFullName())));
+        assertTrue(authors.stream().anyMatch(a -> "Author_2".equals(a.getFullName())));
+        assertTrue(authors.stream().anyMatch(a -> "Author_3".equals(a.getFullName())));
 
-        // Проверка миграции жанров
+
         List<GenreDocument> genres = mongoTemplate.findAll(GenreDocument.class, "genres");
-        assertEquals(3, genres.size());
-        assertTrue(genres.stream().anyMatch(g -> "Роман".equals(g.getName())));
-        assertTrue(genres.stream().anyMatch(g -> "Классика".equals(g.getName())));
-        assertTrue(genres.stream().anyMatch(g -> "Философия".equals(g.getName())));
+        assertEquals(6, genres.size());
+        assertTrue(genres.stream().anyMatch(g -> "Genre_1".equals(g.getName())));
+        assertTrue(genres.stream().anyMatch(g -> "Genre_2".equals(g.getName())));
+        assertTrue(genres.stream().anyMatch(g -> "Genre_3".equals(g.getName())));
+        assertTrue(genres.stream().anyMatch(g -> "Genre_4".equals(g.getName())));
+        assertTrue(genres.stream().anyMatch(g -> "Genre_5".equals(g.getName())));
+        assertTrue(genres.stream().anyMatch(g -> "Genre_6".equals(g.getName())));
 
-        // Проверка миграции книг
+
         List<BookDocument> books = mongoTemplate.findAll(BookDocument.class, "books");
-        assertEquals(2, books.size());
+        assertEquals(3, books.size());
 
-        BookDocument warAndPeace = mongoTemplate.findOne(
-                Query.query(Criteria.where("title").is("Война и мир")),
+        BookDocument book = mongoTemplate.findOne(
+                Query.query(Criteria.where("title").is("BookTitle_1")),
                 BookDocument.class
         );
-        assertNotNull(warAndPeace);
-        assertNotNull(warAndPeace.getAuthor());
-        assertEquals("Лев Толстой", warAndPeace.getAuthor().getFullName());
-        assertEquals(2, warAndPeace.getGenres().size());
+        assertNotNull(book);
+        assertNotNull(book.getAuthor());
+        assertEquals("Author_1", book.getAuthor().getFullName());
+        assertEquals(2, book.getGenres().size());
+        assertEquals("Genre_1", book.getGenres().get(0).getName());
+        assertEquals("Genre_2", book.getGenres().get(1).getName());
 
-        // Проверка миграции комментариев
+
         List<CommentDocument> comments = mongoTemplate.findAll(CommentDocument.class, "comments");
         assertEquals(3, comments.size());
 
-        // Проверка связей между документами
-        BookDocument crimeAndPunishment = mongoTemplate.findOne(
-                Query.query(Criteria.where("title").is("Преступление и наказание")),
+        BookDocument bookWithComments = mongoTemplate.findOne(
+                Query.query(Criteria.where("title").is("BookTitle_2")),
                 BookDocument.class
         );
-        assertNotNull(crimeAndPunishment);
+        assertNotNull(bookWithComments);
 
         List<CommentDocument> bookComments = mongoTemplate.find(
-                Query.query(Criteria.where("book.$id").is(crimeAndPunishment.getId())),
+                Query.query(Criteria.where("book").is(bookWithComments.getId())),
                 CommentDocument.class
         );
         assertEquals(1, bookComments.size());
-        assertEquals("Глубокое произведение", bookComments.get(0).getText());
+        assertEquals("Nice book", bookComments.get(0).getText());
     }
-
-
 
 
 }
