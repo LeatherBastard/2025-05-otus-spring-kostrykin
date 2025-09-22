@@ -11,22 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-       
+      - uses: actions/checkout@v4  
       - name: Cache embedded MongoDB
-        uses: actions/checkout@v4
         uses: actions/cache@v3
         with:
           path: ~/.embedmongo
           key: ${{ runner.os }}-embedmongo-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-embedmongo-
-        uses: actions/cache@v3
-        with:
-          path: ~/.embedmongo
-          key: ${{ runner.os }}-embedmongo-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-embedmongo-
-
     
       - name: Checkout repo
         uses: actions/checkout@v3
