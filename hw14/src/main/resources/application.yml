@@ -1,0 +1,34 @@
+spring:
+  h2:
+    console:
+      enabled: true
+    job:
+      enabled: false
+
+  shell:
+    interactive:
+      enabled: true
+    noninteractive:
+      enabled: false
+
+  data:
+    mongodb:
+      uri: mongodb://admin:password@localhost:27017/library?authSource=admin
+      host: localhost
+      port: 27017
+      database: library
+      authentication-database: admin
+
+  datasource:
+    url: jdbc:h2:mem:maindb
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+
+  flyway:
+    enabled: true
+    location: classpath:db/migration
+
+  sql:
+    init:
+      mode: never
