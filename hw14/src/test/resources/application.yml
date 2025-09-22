@@ -11,13 +11,18 @@ spring:
     job:
       enabled: false
 
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 4.0.2
+
   data:
     mongodb:
-      uri: mongodb://admin:password@localhost:27017/library?authSource=admin
+      uri: mongodb://localhost:27017/library
       host: localhost
-      port: 27017
       database: library
-      authentication-database: admin
+      port: 0
 
   logging:
     level:
