@@ -18,6 +18,15 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - uses: actions/checkout@v4
+      - name: Cache embedded MongoDB
+        uses: actions/cache@v3
+        with:
+          path: ~/.embedmongo
+          key: ${{ runner.os }}-embedmongo-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-embedmongo-
+
       - name: Build application
         run: |
           mvn verify --no-transfer-progress
