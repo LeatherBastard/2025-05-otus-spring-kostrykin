@@ -38,6 +38,8 @@ public class ItemGeneratorServiceImpl implements ItemGeneratorService {
                         .map(Item::getName)
                         .collect(Collectors.joining(",")));
             });
+
+            delay();
         }
 
     }
@@ -48,5 +50,14 @@ public class ItemGeneratorServiceImpl implements ItemGeneratorService {
             items.add(new Item((long) i, "Item" + i, RandomUtils.nextLong(1, 3)));
         }
         return items;
+    }
+
+    private void delay() {
+        try {
+            Thread.sleep(7000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

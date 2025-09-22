@@ -9,6 +9,6 @@ import java.util.Collection;
 
 @MessagingGateway
 public interface ItemGateway {
-    @Gateway(requestChannel = "itemsChannel", replyChannel = "orderChannel")
+    @Gateway(requestChannel = "itemsChannel")
     Order process(Collection<Item> items);
 }

@@ -24,6 +24,8 @@ public class IntegrationConfig {
     public IntegrationFlow orderItemsFlow() {
         return IntegrationFlow.from(itemsChannel())
                 .<Item>filter(item -> item.getOrderId() == ORDER_ID)
+                //@TODO Трансформировать предметы в заказ
+                .transform()
                 .channel("orderChannel")
                 .get();
 
