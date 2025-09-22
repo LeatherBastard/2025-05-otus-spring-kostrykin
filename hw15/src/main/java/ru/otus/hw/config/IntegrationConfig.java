@@ -13,17 +13,17 @@ import ru.otus.hw.services.validation.OrderValidationService;
 
 @Configuration
 public class IntegrationConfig {
+    private static final long ORDER_ID = 2L;
+
     @Bean
     MessageChannelSpec<?, ?> itemsChannel() {
         return MessageChannels.queue(10);
     }
 
     @Bean
-    public IntegrationFlow orderItemsFlow()
-    {
-        //@TODO Закончить логику формирования предметов в заказ
+    public IntegrationFlow orderItemsFlow() {
         return IntegrationFlow.from(itemsChannel())
-                .<Item>filter(item->item.getOrderId()==)
+                .<Item>filter(item -> item.getOrderId() == ORDER_ID)
                 .channel("orderChannel")
                 .get();
 
@@ -58,6 +58,5 @@ public class IntegrationConfig {
                 .handle(fulfillmentService, "fulfillOrder")
                 .get();
     }
-
 
 }

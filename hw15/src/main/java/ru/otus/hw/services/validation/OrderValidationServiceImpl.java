@@ -16,8 +16,9 @@ public class OrderValidationServiceImpl implements OrderValidationService {
         boolean isItemsEmpty = order.getItems().isEmpty();
         if (isIdEmpty || isItemsEmpty) {
             order.setValid(false);
+        } else {
+            order.setValid(true);
         }
-        order.setValid(true);
         return order;
     }
 
