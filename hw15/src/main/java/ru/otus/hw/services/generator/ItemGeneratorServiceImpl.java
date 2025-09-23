@@ -24,8 +24,8 @@ public class ItemGeneratorServiceImpl implements ItemGeneratorService {
 
     @Override
     public void startGenerateItems() {
-
-        for (int i = 0; i < 10; i++) {
+        ForkJoinPool pool = ForkJoinPool.commonPool();
+        for (int i = 0; i < 1; i++) {
             int num = i + 1;
 
                 Collection<Item> items = generateItems();
@@ -34,14 +34,15 @@ public class ItemGeneratorServiceImpl implements ItemGeneratorService {
                                 .collect(Collectors.joining(",")));
 
                 Order order = itemGateway.process(items);
+
                 log.info("Got ready order " + num);
                 log.info("{}, Ready order of items: {}", num, order.getItems().stream()
                         .map(Item::getName)
                         .collect(Collectors.joining(",")));
 
 
-
         }
+
 
     }
 
@@ -53,12 +54,5 @@ public class ItemGeneratorServiceImpl implements ItemGeneratorService {
         return items;
     }
 
-    private void delay() {
-        try {
-            Thread.sleep(7000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
-    }
 }

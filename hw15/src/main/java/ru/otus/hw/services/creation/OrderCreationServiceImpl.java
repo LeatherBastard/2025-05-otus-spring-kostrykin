@@ -17,9 +17,12 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         log.info("Creating Order...");
         Order order = new Order(items.get(0).getOrderId(), "Order", new ArrayList<>());
         items.stream().forEach(item -> order.getItems().add(item));
+
         log.info(" Order with items: {}", order.getItems().stream()
                 .map(Item::getName)
                 .collect(Collectors.joining(",")));
         return order;
     }
+
+
 }

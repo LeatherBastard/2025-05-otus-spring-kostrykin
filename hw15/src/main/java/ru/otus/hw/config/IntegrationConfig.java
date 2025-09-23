@@ -8,6 +8,7 @@ import org.springframework.integration.dsl.MessageChannelSpec;
 import org.springframework.integration.dsl.MessageChannels;
 import org.springframework.integration.dsl.PollerSpec;
 import org.springframework.integration.dsl.Pollers;
+import org.springframework.integration.endpoint.PollingConsumer;
 import org.springframework.integration.scheduling.PollerMetadata;
 import ru.otus.hw.model.Item;
 import ru.otus.hw.model.Order;
@@ -25,33 +26,37 @@ public class IntegrationConfig {
 
     @Bean
     MessageChannelSpec<?, ?> itemsChannel() {
-        return MessageChannels.publishSubscribe();
+        return MessageChannels.queue(10);
     }
+
 
     @Bean
     MessageChannelSpec<?, ?> readyOrderChannel() {
         return MessageChannels.queue(10);
     }
 
-    @Bean(name = PollerMetadata.DEFAULT_POLLER)
-    public PollerSpec poller() {
-        return Pollers.fixedRate(100).maxMessagesPerPoll(2);
-    }
 
     @Bean
     public IntegrationFlow orderItemsFlow(OrderCreationService orderCreationService) {
         return IntegrationFlow.from(itemsChannel())
                 .split()
-                .<Item>filter(item -> ORDER_ID.equals(item.getOrderId()))
+                .<Item>filter(item -> ORDER_ID.equals(item.getOrderId())).log()
                 .aggregate(agregator -> agregator
                         .correlationStrategy(message -> "filteredOrder")
-                        .releaseStrategy(group -> group.size() >= 1)
-
+                        .groupTimeout(1000)
+                        .sendPartialResultOnExpiry(true)
                 )
+                .channel("filteredItemsChannel")
+                .get();
+    }
+
+    @Bean
+    public IntegrationFlow filteredItemsFlow(OrderCreationService orderCreationService) {
+        return IntegrationFlow.from("filteredItemsChannel")
                 .<List<Item>, Order>transform(items -> orderCreationService.createOrder(items))
-                .log()
                 .channel("orderChannel")
                 .get();
+
     }
 
     @Bean
@@ -73,6 +78,7 @@ public class IntegrationConfig {
         return IntegrationFlow.from("supplementOrderChannel")
                 .handle(supplementService, "supplyOrder")
                 .channel("readyOrderChannel")
+                .log()
                 .get();
     }
 
