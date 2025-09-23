@@ -12,9 +12,9 @@ public class OrderValidationServiceImpl implements OrderValidationService {
     @Transformer
     public Order validateOrder(Order order) {
         boolean isIdEmpty = order.getId() == null;
-
+        boolean isNameEmpty = order.getName().isEmpty();
         boolean isItemsEmpty = order.getItems().isEmpty();
-        if (isIdEmpty || isItemsEmpty) {
+        if (isIdEmpty || isNameEmpty || isItemsEmpty) {
             order.setValid(false);
         } else {
             order.setValid(true);

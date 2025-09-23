@@ -24,22 +24,23 @@ public class ItemGeneratorServiceImpl implements ItemGeneratorService {
 
     @Override
     public void startGenerateItems() {
-        ForkJoinPool pool = ForkJoinPool.commonPool();
+
         for (int i = 0; i < 10; i++) {
             int num = i + 1;
-            pool.execute(() -> {
+
                 Collection<Item> items = generateItems();
                 log.info("{}, New items: {}", num,
-                        items.stream().map(Item::getName)
+                        items.stream().map(item -> item.getName() + " " + item.getOrderId())
                                 .collect(Collectors.joining(",")));
 
                 Order order = itemGateway.process(items);
+                log.info("Got ready order " + num);
                 log.info("{}, Ready order of items: {}", num, order.getItems().stream()
                         .map(Item::getName)
                         .collect(Collectors.joining(",")));
-            });
 
-            delay();
+
+
         }
 
     }
