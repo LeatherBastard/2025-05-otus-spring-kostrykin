@@ -6,14 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.MessageChannelSpec;
 import org.springframework.integration.dsl.MessageChannels;
-import org.springframework.integration.dsl.PollerSpec;
-import org.springframework.integration.dsl.Pollers;
-import org.springframework.integration.endpoint.PollingConsumer;
-import org.springframework.integration.scheduling.PollerMetadata;
 import ru.otus.hw.model.Item;
 import ru.otus.hw.model.Order;
 import ru.otus.hw.services.creation.OrderCreationService;
-import ru.otus.hw.services.fulfillment.OrderFulfillmentService;
 import ru.otus.hw.services.supplement.OrderSupplementService;
 import ru.otus.hw.services.validation.OrderValidationService;
 
@@ -78,16 +73,8 @@ public class IntegrationConfig {
         return IntegrationFlow.from("supplementOrderChannel")
                 .handle(supplementService, "supplyOrder")
                 .channel("readyOrderChannel")
-                .log()
                 .get();
     }
 
-
-    @Bean
-    public IntegrationFlow orderFulfillmentFlow(OrderFulfillmentService fulfillmentService) {
-        return IntegrationFlow.from("fulfillmentOrderChannel")
-                .handle(fulfillmentService, "fulfillOrder")
-                .get();
-    }
 
 }
