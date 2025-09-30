@@ -1,0 +1,35 @@
+spring:
+  shell:
+    interactive:
+      enabled: false
+    script:
+      enabled: false
+    command:
+      version:
+        enabled: false
+  batch:
+    job:
+      enabled: false
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 4.0.2
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/library
+      host: localhost
+      database: library
+      port: 0
+
+  logging:
+    level:
+      de:
+        flapdoodle:
+          embed: DEBUG
+        org:
+          springframework:
+            data:
+              mongodb: DEBUG

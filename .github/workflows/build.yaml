@@ -4,10 +4,22 @@ on:
   pull_request:
 
 jobs:
+
+
+  
   build-app:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4  
+      - name: Cache embedded MongoDB
+        uses: actions/cache@v3
+        with:
+          path: ~/.embedmongo
+          key: ${{ runner.os }}-embedmongo-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-embedmongo-
+    
       - name: Checkout repo
         uses: actions/checkout@v3
 
@@ -17,6 +29,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+          
+     
 
       - name: Build application
         run: |
