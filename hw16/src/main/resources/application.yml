@@ -1,0 +1,33 @@
+spring:
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+  datasource:
+    url: jdbc:h2:mem:maindb
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    location: classpath:db/migration
+  sql:
+    init:
+      mode: never
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, logfile
+  endpoint:
+    health:
+      show-details: always
+server:
+  port: 8080
+logging:
+  file:
+    name: restDataActuator-application.log
