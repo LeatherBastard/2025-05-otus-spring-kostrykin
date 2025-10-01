@@ -8,16 +8,16 @@ import ru.otus.hw.models.Book;
 @RequiredArgsConstructor
 @Component
 public class BookMapper {
-    private final AuthorMapper authorMapper;
 
-    private final GenreMapper genreMapper;
+
 
 
     public BookDto bookToDto(Book book) {
         return new BookDto(book.getId(),
                 book.getTitle(),
-                authorMapper.authorToDto(book.getAuthor()),
-                book.getGenres().stream().map(genreMapper::genreToDto).toList());
+                book.getAuthor(),
+                book.getGenres()
+        );
 
     }
 }

@@ -1,4 +1,7 @@
 spring:
+  data:
+    rest:
+      base-path: /api
   mvc:
     hiddenmethod:
       filter:

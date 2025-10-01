@@ -14,6 +14,9 @@ import ru.otus.hw.dto.book.UpdateBookDto;
 import ru.otus.hw.dto.comment.CommentDto;
 import ru.otus.hw.dto.genre.GenreDto;
 import ru.otus.hw.exceptions.EntityNotFoundException;
+import ru.otus.hw.models.Author;
+import ru.otus.hw.models.Comment;
+import ru.otus.hw.models.Genre;
 import ru.otus.hw.services.BookService;
 
 import java.util.List;
@@ -37,8 +40,8 @@ public class BookControllerTest {
     private ObjectMapper objectMapper;
 
 
-    List<AuthorDto> authors = List.of(new AuthorDto(1, "Author_1"), new AuthorDto(2, "Author_2"));
-    List<GenreDto> genres = List.of(new GenreDto(1, "Genre_1"), new GenreDto(2, "Genre_2"));
+    List<Author> authors = List.of();
+    List<Genre> genres = List.of();
     List<BookDto> books = List.of(
             new BookDto(1, "Book1", authors.get(0), genres),
             new BookDto(2, "Book2", authors.get(1), genres)
@@ -46,7 +49,7 @@ public class BookControllerTest {
 
     UpdateBookDto updateBookDto = new UpdateBookDto(1L, "Book_1", 2L, Set.of(1L, 2L, 3L));
     CreateBookDto createBookDto = new CreateBookDto("Book_1", 2L, Set.of(1L, 2L, 3L));
-    List<CommentDto> comments = List.of(new CommentDto(1, "Comment_1"));
+    List<Comment> comments = List.of();
 
     @Test
     void shouldReturnBooks() throws Exception {

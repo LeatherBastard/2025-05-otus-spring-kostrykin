@@ -51,6 +51,7 @@
   async function getGenres() {
              let response=await fetch('/api/genres');
              let genres=await response.json();
+             genres=genres._embedded.genres;
 
               let table = document.getElementById('genres').tBodies[0];
             for(var i=0;i<genres.length;i++)

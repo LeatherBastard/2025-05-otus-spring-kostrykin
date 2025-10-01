@@ -51,6 +51,7 @@
     async function getAuthors() {
           let response= await fetch('/api/authors');
           let authors= await response.json();
+          authors=authors._embedded.authors;
 
             let table = document.getElementById('authors').tBodies[0];
           for(var i=0;i<authors.length;i++)

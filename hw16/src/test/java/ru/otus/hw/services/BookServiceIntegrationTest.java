@@ -9,10 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.otus.hw.converters.AuthorMapper;
 import ru.otus.hw.converters.BookMapper;
-import ru.otus.hw.converters.CommentMapper;
-import ru.otus.hw.converters.GenreMapper;
 import ru.otus.hw.dto.book.BookDto;
 import ru.otus.hw.dto.book.CreateBookDto;
 import ru.otus.hw.dto.book.UpdateBookDto;
@@ -32,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @Transactional(propagation = Propagation.NEVER)
-@Import({CommentMapper.class, BookMapper.class, AuthorMapper.class, GenreMapper.class, BookServiceImpl.class})
+@Import({ BookMapper.class,  BookServiceImpl.class})
 @RequiredArgsConstructor
 class BookServiceIntegrationTest {
     private static final long BOOK_ID = 3L;
