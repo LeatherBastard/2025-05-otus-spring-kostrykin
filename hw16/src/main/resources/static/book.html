@@ -67,7 +67,8 @@
 
      let bookId=getBookId();
      let book= await fetch('/api/books/'+bookId).then(response=>response.json());
-     let comments = await fetch('/api/comments?bookId='+bookId).then(response=>response.json());
+     let comments = await fetch('/api/comments/search/byBook?bookId='+bookId).then(response=>response.json());
+     comments=comments._embedded.comments;
 
      let table = document.getElementById('book').tBodies[0];
      table.innerHTML='';
@@ -122,9 +123,13 @@
 
          let bookId=getBookId();
          let book= await fetch('/api/books/'+bookId).then(response=>response.json());
-         let comments = await fetch('/api/comments?bookId='+bookId).then(response=>response.json());
+         book=book._embedded.book;
+         let comments = await fetch('/api/comments/search/byBook?bookId='+bookId).then(response=>response.json());
+         comments=comments._embedded.comments;
          let authors = await fetch('/api/authors').then(response=>response.json());
+         authors=authors._embedded.authors;
          let genres= await fetch('/api/genres').then(response=>response.json());
+         genres=genres._embedded.genres;
 
          let table = document.getElementById('book').tBodies[0];
          table.innerHTML='';

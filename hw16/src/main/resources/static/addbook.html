@@ -56,7 +56,9 @@
 
         async function getBooksInfo() {
             let authors = await fetch('/api/authors').then(response=>response.json());
+            authors=authors._embedded.authors;
             let genres= await fetch('/api/genres').then(response=>response.json());
+            genres=genres._embedded.genres;
 
             let table = document.getElementById('book').tBodies[0];
             table.innerHTML='';
