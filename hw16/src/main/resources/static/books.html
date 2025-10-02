@@ -55,7 +55,6 @@ async function getBooks() {
 
 let response= await fetch('/api/books');
 let books= await response.json();
-books=books._embedded.books;
 
       let table = document.getElementById('books').tBodies[0];
     for(var i=0;i<books.length;i++)

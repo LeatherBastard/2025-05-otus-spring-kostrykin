@@ -67,6 +67,7 @@
 
      let bookId=getBookId();
      let book= await fetch('/api/books/'+bookId).then(response=>response.json());
+
      let comments = await fetch('/api/comments/search/byBook?bookId='+bookId).then(response=>response.json());
      comments=comments._embedded.comments;
 
@@ -75,7 +76,7 @@
      let tr=document.createElement('tr');
 
       let cell1=document.createElement('td');
-      cell1.textContent=book.id;
+      cell1.textContent=bookId;
       tr.appendChild(cell1);
 
       let cell2=document.createElement('td');
@@ -123,7 +124,6 @@
 
          let bookId=getBookId();
          let book= await fetch('/api/books/'+bookId).then(response=>response.json());
-         book=book._embedded.book;
          let comments = await fetch('/api/comments/search/byBook?bookId='+bookId).then(response=>response.json());
          comments=comments._embedded.comments;
          let authors = await fetch('/api/authors').then(response=>response.json());
@@ -140,7 +140,7 @@
           let idInput=document.createElement('input');
           idInput.id='idInput';
           idInput.type='text';
-          idInput.value=book.id;
+          idInput.value=bookId;
           idInput.readOnly=true;
           cell1.appendChild(idInput);
           tr.appendChild(cell1);

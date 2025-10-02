@@ -9,14 +9,15 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 public class ActuatorHealthIndicator implements HealthIndicator {
+
     private final RestTemplate restTemplate;
+
+    @Value("${server.port}")
+    private String serverPort;
 
     public ActuatorHealthIndicator() {
         restTemplate = new RestTemplate();
     }
-
-    @Value("${server.port}")
-    private String serverPort;
 
     @Override
     public Health health() {
