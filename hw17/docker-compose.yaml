@@ -1,0 +1,7 @@
+services:
+  hw17:
+    build:
+      dockerfile: Dockerfile
+    container_name: hw17-container
+    ports:
+      - "8080:8080"
