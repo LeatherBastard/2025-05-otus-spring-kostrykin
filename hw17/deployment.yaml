@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: hw17-container
-          image: hw17
+          image: hw17:1.0
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
