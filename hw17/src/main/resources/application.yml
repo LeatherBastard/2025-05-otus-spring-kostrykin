@@ -4,7 +4,9 @@ spring:
       filter:
         enabled: true
   datasource:
-    url: jdbc:h2:mem:maindb
+    url: jdbc:postgresql://localhost:5432/library
+    username: user
+    password: pass
   jpa:
     show-sql: true
     hibernate:
