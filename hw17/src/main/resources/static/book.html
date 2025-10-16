@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Main menu</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        .book {
+            border: 1px solid steelblue;
+            width: 300px;
+            border-collapse: collapse;
+        }
+
+        .book tr td, th {
+            padding: 5px;
+            border: 1px solid steelblue;
+        }
+
+        .book td:last-child, td:first-child {
+            width: 50px;
+        }
+
+        .main-menu{
+            padding-top:100px;
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+
+<h3>Book:</h3>
+<table class="book" id="book">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genres</th>
+        <th>Comments</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+
+<script>
+
+
+    getBookInfo();
+
+  function getBookId()
+  {
+    let queryString = document.location.search;
+    let params = new URLSearchParams(queryString);
+    let bookId = params.get('bookId');
+    return bookId;
+  }
+
+  async function getBookInfo() {
+
+     let bookId=getBookId();
+     let book= await fetch('/api/books/'+bookId).then(response=>response.json());
+     let comments = await fetch('/api/comments?bookId='+bookId).then(response=>response.json());
+
+     let table = document.getElementById('book').tBodies[0];
+     table.innerHTML='';
+     let tr=document.createElement('tr');
+
+      let cell1=document.createElement('td');
+      cell1.textContent=book.id;
+      tr.appendChild(cell1);
+
+      let cell2=document.createElement('td');
+      cell2.textContent=book.title;
+      tr.appendChild(cell2);
+
+      let cell3=document.createElement('td');
+      cell3.textContent=book.author.fullName;
+      tr.appendChild(cell3);
+
+      let cell4=document.createElement('td');
+      let ulist=document.createElement('ul');
+      cell4.appendChild(ulist);
+      for(var j=0;j<book.genres.length;j++)
+      {
+          let litem=document.createElement('li');
+          litem.textContent=book.genres[j].name;
+          ulist.appendChild(litem);
+      }
+      tr.appendChild(cell4);
+
+
+       let cell5=document.createElement('td');
+      ulist=document.createElement('ul');
+      cell5.appendChild(ulist);
+      for(var j=0;j<comments.length;j++)
+      {
+          let litem=document.createElement('li');
+          litem.textContent=comments[j].text;
+          ulist.appendChild(litem);
+      }
+      tr.appendChild(cell5);
+       table.appendChild(tr);
+
+         editButton.textContent='Edit';
+          editButton.removeEventListener('click', updateBookInfo);
+          editButton.addEventListener('click', getBookInfoEdit);
+     }
+
+
+     async function getBookInfoEdit() {
+
+        let errorDiv = document.getElementById('error');
+		errorDiv.textContent='';
+
+         let bookId=getBookId();
+         let book= await fetch('/api/books/'+bookId).then(response=>response.json());
+         let comments = await fetch('/api/comments?bookId='+bookId).then(response=>response.json());
+         let authors = await fetch('/api/authors').then(response=>response.json());
+         let genres= await fetch('/api/genres').then(response=>response.json());
+
+         let table = document.getElementById('book').tBodies[0];
+         table.innerHTML='';
+
+          let tr=document.createElement('tr');
+
+          let cell1=document.createElement('td');
+          let idInput=document.createElement('input');
+          idInput.id='idInput';
+          idInput.type='text';
+          idInput.value=book.id;
+          idInput.readOnly=true;
+          cell1.appendChild(idInput);
+          tr.appendChild(cell1);
+
+          let cell2=document.createElement('td');
+          let titleInput=document.createElement('input');
+          titleInput.id='titleInput';
+          titleInput.type='text';
+          titleInput.value=book.title;
+          titleInput.readOnly=false;
+          cell2.appendChild(titleInput);
+          tr.appendChild(cell2);
+
+          let cell3=document.createElement('td');
+          let authorSelect=document.createElement('select');
+          authorSelect.id='authorSelect';
+          authors.forEach(author=> {
+            let option=document.createElement('option');
+            option.value=author.id;
+            option.text=author.fullName;
+            if(book.author.id===author.id){
+            option.selected=true;
+            }
+            authorSelect.appendChild(option);
+          });
+          cell3.appendChild(authorSelect);
+          tr.appendChild(cell3);
+
+           let cell4=document.createElement('td');
+            genres.forEach(genre=> {
+            let genreCheckbox=document.createElement('input');
+           genreCheckbox.id='checkbox'+genre.id;
+            genreCheckbox.type='checkbox';
+            genreCheckbox.value=genre.id;
+
+            if(book.genres.find(bgenre=> bgenre.id=== genre.id))
+            {
+                genreCheckbox.checked=true;
+            }
+           let genreLabel=document.createElement('label');
+           genreLabel.htmlFor=genreCheckbox.id;
+            genreLabel.textContent=genre.name;
+            cell4.appendChild(genreCheckbox);
+            cell4.appendChild(genreLabel);
+          });
+          tr.appendChild(cell4);
+
+          let cell5=document.createElement('td');
+          ulist=document.createElement('ul');
+          cell5.appendChild(ulist);
+          comments.forEach(comment=>{
+              let litem=document.createElement('li');
+              litem.textContent=comment.text;
+              ulist.appendChild(litem);
+          });
+          tr.appendChild(cell5);
+           table.appendChild(tr);
+
+
+          let editButton=document.getElementById('editButton');
+          editButton.textContent='Update';
+          editButton.removeEventListener('click', getBookInfoEdit);
+          editButton.addEventListener('click', updateBookInfo);
+
+      }
+
+    async function updateBookInfo()
+    {
+         let bookId=getBookId();
+         let checkboxes= document.querySelectorAll('input[type="checkbox"]');
+         let checkedValues = [];
+
+         checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+              checkedValues.push(checkbox.value);
+            }
+          });
+
+         let bookDto={
+            id: document.getElementById('idInput').value,
+            title: document.getElementById('titleInput').value ,
+            authorId:document.getElementById('authorSelect').value ,
+            genreIds: checkedValues
+         };
+         console.log(bookDto);
+        await fetch('/api/books/'+bookId,{
+        method: 'PATCH',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(bookDto)
+        }).then(
+    response => {
+      if (!response.ok) {
+        return response.json().then(errors => {
+          throw errors;
+        });
+      } else {
+         getBookInfo();
+      }
+    }).catch(errors => {
+    console.log(errors.json);
+    let errorDiv = document.getElementById('error');
+		errorDiv.textContent='';
+		console.log(errors);
+    for (const [field, message] of Object.entries(errors)) {
+      let errorP = document.createElement('p');
+      errorP.style.color='red';
+      errorP.textContent = field + ':' + message;
+      errorDiv.appendChild(errorP);
+    }
+  });
+
+
+    }
+
+    async function deleteBook()
+    {
+        let bookId=getBookId();
+        await fetch('/api/books/'+bookId,{
+        method: 'DELETE',
+        headers: {
+        'Content-Type': 'application/json'
+        }}).then(
+            response=>{
+            if(response.status!=200)
+            {
+                alert('The book was not deleted!!!');
+            }
+            else
+            {
+                alert('The book was deleted');
+            }
+          });
+            window.location.assign(window.location.origin);
+    }
+
+
+</script>
+<div id="error">
+
+</div>
+<div>
+    <button id="editButton" type="button" onclick="getBookInfoEdit()">Edit</button>
+    <button type="submit" onclick="deleteBook()">Delete</button>
+</div>
+
+
+<div class="main-menu">
+    <div><a href="/">Main menu</a></div>
+</div>
+
+</body>
+</html>
