@@ -14,13 +14,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-
+@RateLimiter(name = "frontendRateLimitedService")
 public class GenreController {
 
     private final GenreService genreService;
 
     @GetMapping("/genres")
-    @RateLimiter(name = "frontendRateLimitedService", fallbackMethod = "rateLimitFallBack")
     public List<GenreDto> getGenres() {
         return genreService.findAll();
     }

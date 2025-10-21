@@ -7,6 +7,6 @@ feign:
 resilience4j.ratelimiter:
   instances:
     frontendRateLimitedService:
-      limit-for-period: 3
+      limit-for-period: 8
       limit-refresh-period: 1m
       timeout-duration: 0
