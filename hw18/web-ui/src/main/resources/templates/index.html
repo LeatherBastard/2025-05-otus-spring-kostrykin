@@ -24,9 +24,9 @@
 
 <div><a href="addbook.html">Add Book</a></div>
 <div>
-    <form id="bookForm" th:action="book.html" method="GET">
+    <form id="bookForm" method="GET" th:action="book.html">
         Read Book By Id
-        <input id="bookInput" name="bookId" type="text" size="4"/>
+        <input id="bookInput" name="bookId" size="4" type="text"/>
         <button type="submit">Show</button>
     </form>
 </div>

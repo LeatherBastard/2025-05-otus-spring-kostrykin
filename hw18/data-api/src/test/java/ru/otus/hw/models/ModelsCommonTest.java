@@ -45,6 +45,10 @@ class ModelsCommonTest {
 
     }
 
+    private static Stream<Arguments> getEntities() {
+        return entitiesClasses.stream().map(Arguments::of);
+    }
+
     @ParameterizedTest
     @MethodSource("getEntities")
     void shouldBeNoOneToOneRelationshipsInModelClasses(Class<?> entityClass) {
@@ -93,10 +97,6 @@ class ModelsCommonTest {
                 .withFailMessage("Двунаправленные связи должны быть настроены с помощью mappedBy")
                 .isFalse();
 
-    }
-
-    private static Stream<Arguments> getEntities() {
-        return entitiesClasses.stream().map(Arguments::of);
     }
 
     private <T> T getRelationAnnotationArgumentValue(Field field, String argumentName, Class<T> returnType) {

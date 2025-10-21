@@ -1,8 +1,8 @@
 package ru.otus.hw.services;
 
 import lombok.RequiredArgsConstructor;
-import ru.otus.hw.clients.GenreClient;
 import org.springframework.stereotype.Service;
+import ru.otus.hw.clients.GenreClient;
 import ru.otus.hw.dto.genre.GenreDto;
 
 import java.util.List;

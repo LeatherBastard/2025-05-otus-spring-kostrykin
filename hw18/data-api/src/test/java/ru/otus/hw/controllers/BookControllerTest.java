@@ -27,26 +27,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(BookController.class)
 public class BookControllerTest {
 
-    @Autowired
-    private MockMvc mvc;
-
-    @MockBean
-    private BookService bookService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-
     List<AuthorDto> authors = List.of(new AuthorDto(1, "Author_1"), new AuthorDto(2, "Author_2"));
     List<GenreDto> genres = List.of(new GenreDto(1, "Genre_1"), new GenreDto(2, "Genre_2"));
     List<BookDto> books = List.of(
             new BookDto(1, "Book1", authors.get(0), genres),
             new BookDto(2, "Book2", authors.get(1), genres)
     );
-
     UpdateBookDto updateBookDto = new UpdateBookDto(1L, "Book_1", 2L, Set.of(1L, 2L, 3L));
     CreateBookDto createBookDto = new CreateBookDto("Book_1", 2L, Set.of(1L, 2L, 3L));
     List<CommentDto> comments = List.of(new CommentDto(1, "Comment_1"));
+    @Autowired
+    private MockMvc mvc;
+    @MockBean
+    private BookService bookService;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void shouldReturnBooks() throws Exception {

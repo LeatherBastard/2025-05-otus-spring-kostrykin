@@ -1,8 +1,8 @@
 package ru.otus.hw.services;
 
 import lombok.RequiredArgsConstructor;
-import ru.otus.hw.clients.CommentClient;
 import org.springframework.stereotype.Service;
+import ru.otus.hw.clients.CommentClient;
 import ru.otus.hw.dto.comment.CommentDto;
 
 import java.util.List;
