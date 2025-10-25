@@ -1,5 +1,6 @@
 package ru.otus.hw.controllers;
 
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -34,17 +35,26 @@ public class ErrorHandler {
 
     private static final String INTERNAL_SERVER_ERROR_REASON = "Internal server error.";
 
+    private static final String TOO_MANY_REQUESTS_STATUS = "TOO_MANY_REQUESTS";
+
+    private static final String TOO_MANY_REQUEST_REASON = "Too many requests. Please try again later";
+
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handleNotFoundException(EntityNotFoundException ex) {
         return new ApiError(NOT_FOUND_STATUS, NOT_FOUND_REASON, ex.getMessage(), LocalDateTime.now());
     }
 
-
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         return new ApiError(BAD_REQUEST_STATUS, BAD_REQUEST_REASON, ex.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(RequestNotPermitted.class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public ApiError handleRequestNotPermitted(RequestNotPermitted ex) {
+        return new ApiError(TOO_MANY_REQUESTS_STATUS, TOO_MANY_REQUEST_REASON, ex.getMessage(), LocalDateTime.now());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

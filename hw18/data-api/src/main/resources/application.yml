@@ -19,3 +19,9 @@ spring:
     init:
       mode: never
 
+resilience4j.ratelimiter:
+  instances:
+    dataRateLimitedService:
+      limit-for-period: 8
+      limit-refresh-period: 1m
+      timeout-duration: 0

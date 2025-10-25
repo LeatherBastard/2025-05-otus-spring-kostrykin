@@ -1,7 +1,8 @@
 package ru.otus.hw.services;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.otus.hw.clients.BookClient;
 import ru.otus.hw.dto.book.BookDto;
@@ -12,7 +13,8 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-@Slf4j
+@Retry(name = "uiRetryService")
+@CircuitBreaker(name = "uiCircuitBreakerService")
 public class BookServiceImpl implements BookService {
 
     private final BookClient bookClient;
@@ -34,12 +36,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto update(long id, UpdateBookDto bookDto) {
-        try {
-            return bookClient.updateBook(id, bookDto);
-        } catch (Exception e) {
-            log.info(e.getClass() + " " + e.getCause() + " " + e.getMessage());
-        }
-        return null;
+        return bookClient.updateBook(id, bookDto);
     }
 
     @Override

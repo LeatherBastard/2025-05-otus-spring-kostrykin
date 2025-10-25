@@ -1,5 +1,6 @@
 package ru.otus.hw.services;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.List;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @RequiredArgsConstructor
+@RateLimiter(name = "dataRateLimitedService")
 @Service
 public class BookServiceImpl implements BookService {
 

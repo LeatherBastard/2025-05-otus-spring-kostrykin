@@ -1,5 +1,6 @@
 package ru.otus.hw.services;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import ru.otus.hw.repositories.CommentRepository;
 import java.util.List;
 
 @RequiredArgsConstructor
+@RateLimiter(name = "dataRateLimitedService")
 @Service
 public class CommentServiceImpl implements CommentService {
 

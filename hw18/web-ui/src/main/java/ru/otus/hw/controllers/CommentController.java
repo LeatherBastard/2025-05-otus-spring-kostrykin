@@ -1,6 +1,5 @@
 package ru.otus.hw.controllers;
 
-import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@RateLimiter(name = "frontendRateLimitedService")
 public class CommentController {
 
     private final CommentService commentService;

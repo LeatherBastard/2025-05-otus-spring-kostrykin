@@ -4,9 +4,24 @@ feign:
   httpclient:
     hc5:
       enabled: true
-resilience4j.ratelimiter:
+
+resilience4j.retry:
   instances:
-    frontendRateLimitedService:
-      limit-for-period: 8
-      limit-refresh-period: 1m
-      timeout-duration: 0
+    uiRetryService:
+      max-attempts: 3
+      wait-duration: 500ms
+  retryAspectOrder: 2
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      uiCircuitBreakerService:
+        slidingWindowSize: 6 # Анализировать последние 5 вызовов
+        minimumNumberOfCalls: 3 # Минимум 2 вызова до принятия решения
+        failureRateThreshold: 50 # Открыть цепь при 50% ошибок
+        waitDurationInOpenState: 1m
+        record-exceptions:
+          - java.lang.RuntimeException
+          - java.lang.Exception
+  circuitBreakerAspectOrder: 1
+

@@ -1,5 +1,7 @@
 package ru.otus.hw.services;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.otus.hw.clients.CommentClient;
@@ -9,6 +11,8 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Retry(name = "uiRetryService")
+@CircuitBreaker(name = "uiCircuitBreakerService")
 public class CommentServiceImpl implements CommentService {
     private final CommentClient commentClient;
 

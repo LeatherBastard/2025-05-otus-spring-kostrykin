@@ -1,6 +1,5 @@
 package ru.otus.hw.controllers;
 
-import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -61,12 +60,6 @@ public class ErrorHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
-
-    @ExceptionHandler(RequestNotPermitted.class)
-    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
-    public ApiError handleRequestNotPermitted(RequestNotPermitted ex) {
-        return new ApiError(TOO_MANY_REQUESTS_STATUS, TOO_MANY_REQUEST_REASON, ex.getMessage(), LocalDateTime.now());
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
