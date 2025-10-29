@@ -1,0 +1,31 @@
+server:
+  port: 8081
+feign:
+  httpclient:
+    hc5:
+      enabled: true
+
+resilience4j.retry:
+  instances:
+    uiRetryService:
+      max-attempts: 3
+      wait-duration: 500ms
+  retryAspectOrder: 2
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      uiCircuitBreakerService:
+        slidingWindowSize: 6
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 50
+        waitDurationInOpenState: 1m
+        record-exceptions:
+          - java.lang.RuntimeException
+          - java.lang.Exception
+  circuitBreakerAspectOrder: 1
+
+logging:
+  level:
+    io.github.resilience4j: DEBUG
+
