@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Stream API Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: #4a5568;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            min-height: 500px;
+        }
+
+        .input-section, .output-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-section {
+            border-right: 1px solid #e2e8f0;
+            background: #f7fafc;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: monospace;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        .output-container {
+            flex: 1;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            padding: 15px;
+            background: #1a202c;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            overflow-y: auto;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .output-placeholder {
+            color: #718096;
+            font-style: italic;
+        }
+
+        .response-line {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .timestamp {
+            color: #68d391;
+            font-weight: bold;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .status-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .status-error {
+            background: #f56565;
+            color: white;
+        }
+
+        .status-info {
+            background: #4299e1;
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-clear {
+            background: #e53e3e;
+        }
+
+        .btn-clear:hover {
+            background: #c53030;
+        }
+
+        .btn-stop {
+            background: #ed8936;
+        }
+
+        .btn-stop:hover {
+            background: #dd7724;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected {
+            background: #48bb78;
+        }
+
+        .status-disconnected {
+            background: #e53e3e;
+        }
+
+        .status-connecting {
+            background: #ed8936;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            color: #718096;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+
+            .input-section {
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Ollama Chat Bot</h1>
+        <div class="subtitle">Отправка запросов и получение ответов от нейросети</div>
+    </header>
+
+    <div class="content">
+        <div class="input-section">
+            <h2 class="section-title">
+                <i>📤</i> Запрос
+            </h2>
+
+            <div class="form-group">
+                <label for="body"></label>
+                <textarea id="body"></textarea>
+            </div>
+
+            <button id="send-btn">
+                <i>🚀</i> Отправить запрос
+            </button>
+
+            <div class="connection-status">
+                <div class="status-indicator status-disconnected" id="status-indicator"></div>
+                <span id="status-text">Не подключено</span>
+            </div>
+        </div>
+
+        <div class="output-section">
+            <h2 class="section-title">
+                <i>📥</i> Ответ
+            </h2>
+
+            <div class="output-container" id="output">
+                <div class="output-placeholder">Ответ от сервера появится здесь...</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn-clear" id="clear-btn">
+                    <i>🗑️</i> Очистить
+                </button>
+                <button class="btn-stop" disabled id="stop-btn">
+                    <i>⏹️</i> Остановить
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bodyInput = document.getElementById('body');
+        const sendBtn = document.getElementById('send-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const output = document.getElementById('output');
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+
+        let controller = null;
+        let isStreaming = false;
+
+        // Функция для обновления статуса подключения
+        function updateConnectionStatus(status) {
+            statusIndicator.className = 'status-indicator';
+
+            switch(status) {
+                case 'connected':
+                    statusIndicator.classList.add('status-connected');
+                    statusText.textContent = 'Подключено (получение данных...)';
+                    break;
+                case 'connecting':
+                    statusIndicator.classList.add('status-connecting');
+                    statusText.textContent = 'Подключение...';
+                    break;
+                case 'error':
+                    statusIndicator.classList.add('status-error');
+                    statusText.textContent = 'Ошибка подключения';
+                    break;
+                default:
+                    statusIndicator.classList.add('status-disconnected');
+                    statusText.textContent = 'Не подключено';
+                    break;
+            }
+        }
+
+        // Функция для добавления сообщения в вывод
+        function addOutputMessage(message, type = 'info') {
+            // Удаляем placeholder, если он есть
+            const placeholder = output.querySelector('.output-placeholder');
+            if (placeholder) {
+                output.removeChild(placeholder);
+
+            }
+
+            const messageElement = document.createElement('div');
+            messageElement.className = 'response-line';
+
+            const timestamp = new Date().toLocaleTimeString();
+
+            let statusClass = 'status-info';
+            if (type === 'success') statusClass = 'status-success';
+            if (type === 'error') statusClass = 'status-error';
+
+
+                messageElement.innerHTML = `
+                    <span class="timestamp">[${timestamp}]</span>
+                    <span class="status ${statusClass}">${type.toUpperCase()}</span>
+                    ${message}
+                `;
+
+            const lastChildElement = output.lastElementChild;
+
+
+            output.appendChild(messageElement);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Функция для отправки запроса
+        async function sendRequest() {
+            if (isStreaming) {
+                addOutputMessage('Уже выполняется запрос. Дождитесь завершения.', 'error');
+                return;
+            }
+
+            const url = "http://localhost:8080/api";
+            const method = "POST";
+            const role = "user";
+
+            let messages = [];
+            const message={
+              role: role,
+              content: bodyInput.value
+            };
+            messages.push(message);
+            let userRequest={
+                model: "gemma3:270m",
+                messages
+            };
+
+
+
+
+            // Сбрасываем предыдущий контроллер, если есть
+            if (controller) {
+                controller.abort();
+            }
+
+            // Создаем новый AbortController для возможности отмены запроса
+            controller = new AbortController();
+            const signal = controller.signal;
+
+            isStreaming = true;
+            sendBtn.disabled = true;
+            stopBtn.disabled = false;
+            updateConnectionStatus('connecting');
+
+            addOutputMessage(`Отправка запроса на: ${url}`, 'info');
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                                'Content-Type': 'application/json'
+                              },
+                    body: JSON.stringify(userRequest),
+                    signal: signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                addOutputMessage(`Ответ получен. Статус: ${response.status} ${response.statusText}`, 'success');
+                updateConnectionStatus('connected');
+
+                // Обрабатываем потоковый ответ
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+
+                    if (done) {
+                        addOutputMessage('Поток завершен', 'info');
+                        break;
+                    }
+
+                    // Декодируем полученные данные
+                    const chunk = decoder.decode(value, { stream: true });
+
+                    // Разделяем данные по строкам (если сервер отправляет несколько JSON объектов)
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.trim() === '') continue;
+
+                        try {
+                            // Пытаемся разобрать как JSON
+
+                            const data = JSON.parse(line);
+                            console.log(JSON.stringify(data,null,2));
+                            let message=data.message.content;
+
+                            addOutputMessage(JSON.stringify(data, null, 2), 'success');
+                        } catch (e) {
+                            // Если не JSON, выводим как текст
+                            addOutputMessage(line, 'info');
+                        }
+                    }
+                }
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    addOutputMessage('Запрос отменен', 'info');
+                } else {
+                    addOutputMessage(`Ошибка: ${error.message}`, 'error');
+                }
+            } finally {
+                isStreaming = false;
+                sendBtn.disabled = false;
+                stopBtn.disabled = true;
+                updateConnectionStatus('disconnected');
+                controller = null;
+            }
+        }
+
+        // Функция для остановки запроса
+        function stopRequest() {
+            if (controller) {
+                controller.abort();
+                addOutputMessage('Запрос остановлен', 'info');
+            }
+        }
+
+        // Функция для очистки вывода
+        function clearOutput() {
+            output.innerHTML = '<div class="output-placeholder">Ответ от сервера появится здесь...</div>';
+        }
+
+        // Назначаем обработчики событий
+        sendBtn.addEventListener('click', sendRequest);
+        stopBtn.addEventListener('click', stopRequest);
+        clearBtn.addEventListener('click', clearOutput);
+
+        // Добавляем обработчик для отправки по Enter в поле URL
+        bodyInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendRequest();
+            }
+        });
+
+        // Демонстрационный пример при загрузке
+        addOutputMessage('Готов к работе. Введите URL и нажмите "Отправить запрос"', 'info');
+    });
+</script>
+</body>
+</html>
