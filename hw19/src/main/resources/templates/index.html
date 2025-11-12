@@ -26,6 +26,9 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
         }
 
         header {
@@ -33,6 +36,7 @@
             color: white;
             padding: 20px;
             text-align: center;
+            flex-shrink: 0;
         }
 
         h1 {
@@ -45,23 +49,31 @@
             font-size: 14px;
         }
 
-        .content {
-            display: flex;
-            flex-wrap: wrap;
-            min-height: 500px;
-        }
-
-        .input-section, .output-section {
-            flex: 1;
-            min-width: 300px;
-            padding: 20px;
+        .main-content {
             display: flex;
             flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .output-section {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-bottom: 1px solid #4a5568;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
+            overflow: hidden;
         }
 
         .input-section {
-            border-right: 1px solid #e2e8f0;
             background: #f7fafc;
+            padding: 20px;
+            flex-shrink: 0;
+            border-top: 1px solid #e2e8f0;
         }
 
         .section-title {
@@ -70,11 +82,23 @@
             color: #2d3748;
             display: flex;
             align-items: center;
+            flex-shrink: 0;
+        }
+
+        .output-section .section-title {
+            color: #e2e8f0;
         }
 
         .section-title i {
             margin-right: 8px;
+        }
+
+        .input-section .section-title i {
             color: #667eea;
+        }
+
+        .output-section .section-title i {
+            color: #68d391;
         }
 
         .form-group {
@@ -106,7 +130,7 @@
 
         textarea {
             resize: vertical;
-            min-height: 120px;
+            min-height: 80px;
             font-family: monospace;
         }
 
@@ -146,20 +170,33 @@
 
         .output-container {
             flex: 1;
-            border: 1px solid #cbd5e0;
+            border: 1px solid #4a5568;
             border-radius: 6px;
-            padding: 15px;
-            background: #1a202c;
+            background: #0f1419;
             color: #e2e8f0;
             font-family: 'Courier New', monospace;
             overflow-y: auto;
-            min-height: 300px;
+            min-height: 0;
             position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-content {
+            padding: 15px;
+            flex: 1;
+            min-height: min-content;
         }
 
         .output-placeholder {
             color: #718096;
             font-style: italic;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
         }
 
         .response-line {
@@ -172,6 +209,7 @@
         .timestamp {
             color: #68d391;
             font-weight: bold;
+            font-size: 0.9em;
         }
 
         .status {
@@ -202,6 +240,8 @@
             display: flex;
             gap: 10px;
             margin-top: 15px;
+            align-items: center;
+            flex-shrink: 0;
         }
 
         .btn-clear {
@@ -223,8 +263,9 @@
         .connection-status {
             display: flex;
             align-items: center;
-            margin-top: 10px;
+            margin-left: auto;
             font-size: 14px;
+            color: #e2e8f0;
         }
 
         .status-indicator {
@@ -253,22 +294,95 @@
             100% { opacity: 1; }
         }
 
+        .input-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .input-row .form-group:first-child {
+            flex: 2;
+        }
+
+        .request-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .request-controls button {
+            flex: 1;
+        }
+
         footer {
             text-align: center;
             padding: 15px;
             font-size: 14px;
             color: #718096;
             border-top: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        /* Стили для скроллбара */
+        .output-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .output-container::-webkit-scrollbar-track {
+            background: #2d3748;
+            border-radius: 4px;
+        }
+
+        .output-container::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 4px;
+        }
+
+        .output-container::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+
+        /* Убираем скролл у input-section */
+        .input-section {
+            overflow: visible;
         }
 
         @media (max-width: 768px) {
-            .content {
+            .container {
+                height: auto;
+                min-height: calc(100vh - 40px);
+            }
+
+            .input-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .controls {
+                flex-wrap: wrap;
+            }
+
+            .connection-status {
+                margin-left: 0;
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .request-controls {
                 flex-direction: column;
             }
 
-            .input-section {
-                border-right: none;
-                border-bottom: 1px solid #e2e8f0;
+            .main-content {
+                min-height: auto;
+            }
+
+            .output-section {
+                min-height: 400px;
             }
         }
     </style>
@@ -281,6 +395,19 @@
     </header>
 
     <div class="content">
+
+        <div class="output-section">
+            <h2 class="section-title">
+                <i>📥</i> Ответ
+            </h2>
+
+            <div class="output-container" id="output">
+                <div class="output-placeholder">Ответ от сервера появится здесь...</div>
+            </div>
+
+
+        </div>
+
         <div class="input-section">
             <h2 class="section-title">
                 <i>📤</i> Запрос
@@ -295,21 +422,6 @@
                 <i>🚀</i> Отправить запрос
             </button>
 
-            <div class="connection-status">
-                <div class="status-indicator status-disconnected" id="status-indicator"></div>
-                <span id="status-text">Не подключено</span>
-            </div>
-        </div>
-
-        <div class="output-section">
-            <h2 class="section-title">
-                <i>📥</i> Ответ
-            </h2>
-
-            <div class="output-container" id="output">
-                <div class="output-placeholder">Ответ от сервера появится здесь...</div>
-            </div>
-
             <div class="controls">
                 <button class="btn-clear" id="clear-btn">
                     <i>🗑️</i> Очистить
@@ -318,12 +430,19 @@
                     <i>⏹️</i> Остановить
                 </button>
             </div>
+
+            <div class="connection-status">
+                <div class="status-indicator status-disconnected" id="status-indicator"></div>
+                <span id="status-text">Не подключено</span>
+            </div>
         </div>
+
+
     </div>
 
 
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const bodyInput = document.getElementById('body');
@@ -333,7 +452,7 @@
         const output = document.getElementById('output');
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
-
+        let messages = [];
         let controller = null;
         let isStreaming = false;
 
@@ -367,24 +486,21 @@
             const placeholder = output.querySelector('.output-placeholder');
             if (placeholder) {
                 output.removeChild(placeholder);
-
             }
 
             const messageElement = document.createElement('div');
-            messageElement.className = 'response-line';
+
 
             const timestamp = new Date().toLocaleTimeString();
 
             let statusClass = 'status-info';
             if (type === 'success') statusClass = 'status-success';
             if (type === 'error') statusClass = 'status-error';
+            if (type === 'message') statusClass = 'status-prompt';
+            messageElement.className = statusClass;
 
 
-                messageElement.innerHTML = `
-                    <span class="timestamp">[${timestamp}]</span>
-                    <span class="status ${statusClass}">${type.toUpperCase()}</span>
-                    ${message}
-                `;
+            messageElement.textContent += message;
 
             const lastChildElement = output.lastElementChild;
 
@@ -395,6 +511,8 @@
 
         // Функция для отправки запроса
         async function sendRequest() {
+            let aiResponse='';
+
             if (isStreaming) {
                 addOutputMessage('Уже выполняется запрос. Дождитесь завершения.', 'error');
                 return;
@@ -404,11 +522,14 @@
             const method = "POST";
             const role = "user";
 
-            let messages = [];
-            const message={
+
+            let message={
               role: role,
               content: bodyInput.value
             };
+
+            console.log(messages);
+
             messages.push(message);
             let userRequest={
                 model: "gemma3:270m",
@@ -432,7 +553,10 @@
             stopBtn.disabled = false;
             updateConnectionStatus('connecting');
 
-            addOutputMessage(`Отправка запроса на: ${url}`, 'info');
+
+            addOutputMessage(bodyInput.value.trim(), 'message');
+            bodyInput.value='';
+
 
             try {
                 const response = await fetch(url, {
@@ -448,44 +572,67 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                addOutputMessage(`Ответ получен. Статус: ${response.status} ${response.statusText}`, 'success');
                 updateConnectionStatus('connected');
 
                 // Обрабатываем потоковый ответ
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
+                const messageElement = document.createElement('div');
+                messageElement.className = 'response-line';
+                output.appendChild(messageElement);
 
                 while (true) {
                     const { done, value } = await reader.read();
 
-                    if (done) {
-                        addOutputMessage('Поток завершен', 'info');
+
+                    // Декодируем полученные данные
+                    let chunk = decoder.decode(value, { stream: true });
+                    // Разделяем данные по строкам (если сервер отправляет несколько JSON объектов)
+
+                    if(chunk[0]==",")
+                    {
+                       chunk= chunk.slice(1);
+                       chunk="["+chunk;
+                    }
+                    if(chunk[chunk.length-1]==",")
+                    {
+                        chunk= chunk.slice(0,chunk.length-1);
+
+                    }
+                     if(chunk[chunk.length-1]!="]")
+                    {
+                     chunk=chunk+"]";
+                    }
+
+                       try {
+                        chunk=JSON.parse(chunk);
+                        }
+                    catch (e) {
+                         addOutputMessage(chunk, 'info');
+                        }
+
+                    for (const line of chunk) {
+                        aiResponse+=line.message.content;
+                        messageElement.textContent+= line.message.content;
+                        output.scrollTop = output.scrollHeight;
+                    }
+                    if(chunk[chunk.length-1].done==true)
+                    {
                         break;
                     }
 
-                    // Декодируем полученные данные
-                    const chunk = decoder.decode(value, { stream: true });
-
-                    // Разделяем данные по строкам (если сервер отправляет несколько JSON объектов)
-                    const lines = chunk.split('\n');
-
-                    for (const line of lines) {
-                        if (line.trim() === '') continue;
-
-                        try {
-                            // Пытаемся разобрать как JSON
-
-                            const data = JSON.parse(line);
-                            console.log(JSON.stringify(data,null,2));
-                            let message=data.message.content;
-
-                            addOutputMessage(JSON.stringify(data, null, 2), 'success');
-                        } catch (e) {
-                            // Если не JSON, выводим как текст
-                            addOutputMessage(line, 'info');
-                        }
-                    }
                 }
+
+             message={
+              role: 'assistant',
+              content: aiResponse
+            };
+
+            messages.push(message);
+
+
+
+
 
             } catch (error) {
                 if (error.name === 'AbortError') {
@@ -527,8 +674,7 @@
             }
         });
 
-        // Демонстрационный пример при загрузке
-        addOutputMessage('Готов к работе. Введите URL и нажмите "Отправить запрос"', 'info');
+
     });
 </script>
 </body>

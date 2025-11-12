@@ -15,7 +15,6 @@ public class AppConfig {
     public WebClient webClient() {
         return WebClient.builder()
                 .baseUrl(ollamaUrl)
-
                 .build();
     }
 }

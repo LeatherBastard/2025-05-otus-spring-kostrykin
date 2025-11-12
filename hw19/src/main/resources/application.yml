@@ -1,2 +1,11 @@
 ollama:
   url: http://localhost:11434
+spring:
+  data:
+    mongodb:
+      uri: mongodb://admin:password@localhost:27017/ollama-db?authSource=admin
+      host: localhost
+      port: 27017
+      database: ollama-db
+      authentication-database: admin
+

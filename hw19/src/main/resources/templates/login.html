@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Please Log In</title>
+    <style>
+        .center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+        .input-div{
+              margin: 5px 0;
+        }
+
+    </style>
+</head>
+<body>
+<h1 class="center">Please Log In</h1>
+<div class="center" th:if="${param.error}">
+    Invalid username and password.
+</div>
+<div class="center" th:if="${param.logout}">
+    You have been logged out.
+</div>
+<form class="center" th:action="@{/login}" method="post">
+    <div class="input-div">
+        <input type="text" name="username" placeholder="Username"/>
+    </div>
+    <div class="input-div">
+        <input type="password" name="password" placeholder="Password"/>
+    </div>
+    <input type="submit" value="Log in"/>
+</form>
+<div class="center">
+    <div><a href="/register">Haven`t registered yet?</a></div>
+</div>
+</body>
+</html>
