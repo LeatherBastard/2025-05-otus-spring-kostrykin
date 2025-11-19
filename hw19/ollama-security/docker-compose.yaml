@@ -1,0 +1,10 @@
+services:
+  ollama-db:
+    image: postgres:14-alpine
+    container_name: ollama-db-container
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=ollama-users
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
