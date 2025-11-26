@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Stream API Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+            position: relative;
+        }
+
+        /* Стили для панели тем */
+        .topics-panel {
+            position: fixed;
+            left: -350px;
+            top: 20px;
+            bottom: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: left 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topics-panel.open {
+            left: 20px;
+        }
+
+        .topics-header {
+            background: #4a5568;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .topics-header h2 {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .close-topics {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .topics-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .topic-item {
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .topic-item:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .topic-item.active {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .topic-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+
+        .topic-date {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .topics-actions {
+            padding: 15px 20px;
+            border-top: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .btn-new-topic {
+            width: 100%;
+            background: #48bb78;
+        }
+
+        .btn-new-topic:hover {
+            background: #38a169;
+        }
+
+        .toggle-topics {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        header {
+            background: #4a5568;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+            padding-left: 80px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .output-section {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-bottom: 1px solid #4a5568;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .input-section {
+            background: #f7fafc;
+            padding: 20px;
+            flex-shrink: 0;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .output-section .section-title {
+            color: #e2e8f0;
+        }
+
+        .section-title i {
+            margin-right: 8px;
+        }
+
+        .input-section .section-title i {
+            color: #667eea;
+        }
+
+        .output-section .section-title i {
+            color: #68d391;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: monospace;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        .message {
+        margin-bottom: 16px;
+        padding: 12px;
+        border-radius: 8px;
+        max-width: 85%;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        line-height: 1.5;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-message {
+            background: #f7fafc;
+            color: #2d3748;
+            border: 1px solid #e2e8f0;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-header {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .message-content {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+
+        /* Иконки для сообщений */
+        .message-header::before {
+            font-size: 14px;
+        }
+
+        .user-message .message-header::before {
+            content: "👤";
+        }
+
+        .ai-message .message-header::before {
+            content: "🤖";
+        }
+
+
+        .output-container {
+            flex: 1;
+            border: 1px solid #4a5568;
+            border-radius: 6px;
+            background: #0f1419;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            overflow-y: auto;
+            min-height: 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-content {
+            padding: 15px;
+            flex: 1;
+            min-height: min-content;
+            overflow-y: auto;
+        }
+
+        .output-placeholder {
+            color: #718096;
+            font-style: italic;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
+        }
+
+        .response-line {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .timestamp {
+            color: #68d391;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .status-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .status-error {
+            background: #f56565;
+            color: white;
+        }
+
+        .status-info {
+            background: #4299e1;
+            color: white;
+        }
+
+        #status-text{
+            color: black;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .btn-clear {
+            background: #e53e3e;
+        }
+
+        .btn-clear:hover {
+            background: #c53030;
+        }
+
+        .btn-stop {
+            background: #ed8936;
+        }
+
+        .btn-stop:hover {
+            background: #dd7724;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            font-size: 14px;
+            color: #e2e8f0;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+			color: red
+        }
+
+        .status-connected {
+            background: #48bb78;
+        }
+
+        .status-disconnected {
+            background: #e53e3e;
+        }
+
+        .status-connecting {
+            background: #ed8936;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .input-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .input-row .form-group:first-child {
+            flex: 2;
+        }
+
+        .request-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .request-controls button {
+            flex: 1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            color: #718096;
+            border-top: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        /* Стили для скроллбара */
+        .output-container::-webkit-scrollbar,
+        .topics-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .output-container::-webkit-scrollbar-track,
+        .topics-content::-webkit-scrollbar-track {
+            background: #2d3748;
+            border-radius: 4px;
+        }
+
+        .output-container::-webkit-scrollbar-thumb,
+        .topics-content::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 4px;
+        }
+
+        .output-container::-webkit-scrollbar-thumb:hover,
+        .topics-content::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+
+        .topics-content::-webkit-scrollbar-track {
+            background: #f7fafc;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: auto;
+                min-height: calc(100vh - 40px);
+            }
+
+            .topics-panel {
+                width: 300px;
+                left: -300px;
+            }
+
+            .input-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .controls {
+                flex-wrap: wrap;
+            }
+
+            .connection-status {
+                margin-left: 0;
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .request-controls {
+                flex-direction: column;
+            }
+
+            .main-content {
+                min-height: auto;
+            }
+
+            .output-section {
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Кнопка открытия панели тем -->
+    <button class="toggle-topics" id="toggle-topics">
+        <i>📚</i> Темы
+    </button>
+
+    <!-- Панель тем -->
+    <div class="topics-panel" id="topics-panel">
+        <div class="topics-header">
+            <h2>Темы чатов</h2>
+            <button class="close-topics" id="close-topics">×</button>
+        </div>
+        <div class="topics-content" id="topics-content">
+            <!-- Темы будут загружаться здесь -->
+        </div>
+        <div class="topics-actions">
+            <button class="btn-new-topic" id="new-topic-btn">
+                <i>➕</i> Новая тема
+            </button>
+        </div>
+    </div>
+
+    <header>
+        <h1>Ollama Chat Bot</h1>
+        <div class="subtitle">Отправка запросов и получение ответов от нейросети</div>
+    </header>
+
+    <div class="content">
+        <div class="output-section">
+            <h2 class="section-title">
+                <i>📥</i> Ответ
+            </h2>
+
+            <div class="output-container" id="output">
+                <div class="output-content" id="output-content">
+                    <div class="output-placeholder">Ответ от сервера появится здесь...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2 class="section-title">
+                <i>📤</i> Запрос
+            </h2>
+
+            <div class="form-group">
+                <label for="body"></label>
+                <textarea id="body"></textarea>
+            </div>
+
+            <button id="send-btn">
+                <i>🚀</i> Отправить запрос
+            </button>
+
+            <div class="controls">
+                <button class="btn-clear" id="clear-btn">
+                    <i>🗑️</i> Очистить
+                </button>
+                <button class="btn-stop" disabled id="stop-btn">
+                    <i>⏹️</i> Остановить
+                </button>
+            </div>
+
+            <div class="connection-status">
+                <div class="status-indicator status-disconnected" id="status-indicator"></div>
+                <span id="status-text">Не подключено</span>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+<script>
+
+
+    class TopicManager {
+        constructor() {
+            this.topics = [];
+            this.currentTopicId = null;
+            this.currentTopicMessages = [];
+            this.init();
+        }
+
+        async init() {
+            await this.loadtopics();
+            this.rendertopics();
+        }
+
+        // Загрузка тем (в реальном приложении - запрос к API)
+        async loadtopics() {
+            try {
+
+               const response = await fetch(baseUrl+'/api/topics',{
+                 credentials: 'include'
+               });
+
+                const contentLength = response.headers.get('content-length');
+                if (contentLength === '0') {
+                 this.topics = [];
+                }
+                else
+                {
+                  this.topics = await response.json();
+                }
+
+
+                // Временно используем моковые данные
+                console.log('Темы загружены:', this.topics);
+            } catch (error) {
+                console.error('Ошибка загрузки тем:', error);
+                this.topics = [];
+            }
+        }
+
+        // Создание новой темы
+        async createTopic(title) {
+            try {
+               const params=new URLSearchParams();
+               params.append("title",title);
+               const response = await fetch(baseUrl+`/api/topics?${params}`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' }
+                });
+                 const newTopic = await response.json();
+
+                this.topics.unshift(newTopic);
+                this.rendertopics();
+                await this.selectTopic(newTopic.id);
+                return newTopic;
+            } catch (error) {
+                console.error('Ошибка создания темы:', error);
+            }
+        }
+
+        // Выбор темы
+        async selectTopic(topicId) {
+            this.currentTopicId = topicId;
+            const topic = this.topics.find(t => t.id === topicId);
+
+            if (topic) {
+                console.log('Выбрана тема:', topic);
+                // Загрузка сообщений выбранной темы
+                await this.loadTopicMessages(topicId);
+                this.highlightSelectedTopic();
+                this.updateUIForTopic(topic);
+            }
+        }
+
+        addUserMessage(text) {
+          this.addMessage(text, 'user');
+        }
+
+        // Функция для добавления сообщения нейросети
+        addAIMessage(text) {
+            this.addMessage(text, 'ai');
+        }
+
+        // Основная функция добавления сообщения
+        addMessage(text, type) {
+            // Убираем плейсхолдер если он есть
+             const output = document.getElementById('output-content');
+
+            const placeholder = output.querySelector('.output-placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
+
+            // Создаем элемент сообщения
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+
+            // Создаем заголовок сообщения
+            const messageHeader = document.createElement('div');
+            messageHeader.className = 'message-header';
+            messageHeader.textContent = type === 'user' ? 'Пользователь' : 'Нейросеть';
+
+            // Создаем контент сообщения
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = text;
+
+            // Собираем сообщение
+            messageDiv.appendChild(messageHeader);
+            messageDiv.appendChild(messageContent);
+
+            // Добавляем в контейнер
+            output.appendChild(messageDiv);
+
+            // Прокручиваем к последнему сообщению
+            output.scrollTop = output.scrollHeight;
+        }
+
+
+
+
+        // Загрузка сообщений темы
+        async loadTopicMessages(topicId) {
+            try {
+               this.currentTopicMessages=[];
+               const params=new URLSearchParams();
+               params.append("topicId",topicId);
+               const response = await fetch(baseUrl+`/api/messages?${params}`,
+                   {
+                        credentials: 'include'
+                   });
+               const messages = await response.json();
+               this.currentTopicMessages=messages;
+                // Очистка текущего чата
+                const outputContent = document.getElementById('output-content');
+                outputContent.innerHTML = '';
+
+
+                if (messages && messages.length > 0) {
+                    messages.forEach(msg => this.addMessageToChat(msg));
+                } else {
+                    outputContent.innerHTML = '<div class="output-placeholder">Начните диалог...</div>';
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки сообщений:', error);
+            }
+        }
+
+         //Создание нового сообщения
+          async createTopicMessage(message) {
+              try {
+
+              const currentTopicId=this.currentTopicId;
+               const insertMessage={
+                topicId: currentTopicId,
+                role: message.role,
+                content: message.content
+            };
+               const response = await fetch(baseUrl+`/api/messages`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(insertMessage),
+                });
+
+
+            } catch (error) {
+                console.error('Ошибка создания сообщения:', error);
+            }
+        }
+
+        // Добавление сообщения в чат
+        addMessageToChat(message) {
+
+            const outputContent = document.getElementById('output-content');
+            const placeholder = outputContent.querySelector('.output-placeholder');
+
+            if (placeholder) {
+                placeholder.remove();
+            }
+            if(message.role=='user')
+            {
+                this.addUserMessage(message.content);
+            }
+            else
+            {
+                this.addAIMessage(message.content);
+            }
+
+
+
+        }
+
+        // Обновление UI для выбранной темы
+        updateUIForTopic(topic) {
+            document.querySelector('header h1').textContent = topic.title;
+            document.getElementById('topics-panel').classList.remove('open');
+        }
+
+        // Подсветка выбранной темы
+        highlightSelectedTopic() {
+            document.querySelectorAll('.topic-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            const selectedItem = document.querySelector(`[data-topic-id="${this.currentTopicId}"]`);
+            if (selectedItem) {
+                selectedItem.classList.add('active');
+            }
+        }
+
+        // Рендеринг списка тем
+        rendertopics() {
+            const topicsContent = document.getElementById('topics-content');
+
+            if (this.topics.length === 0) {
+                topicsContent.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">Темы не найдены</div>';
+                return;
+            }
+
+            topicsContent.innerHTML = this.topics.map(topic => `
+                <div class="topic-item" data-topic-id="${topic.id}">
+                    <div class="topic-title">${topic.title}</div>
+                    <div class="topic-date">Создано: ${topic.createdAt}</div>
+                </div>
+            `).join('');
+
+            // Добавляем обработчики клика
+            topicsContent.querySelectorAll('.topic-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const topicId = item.dataset.topicId;
+                    this.selectTopic(topicId);
+                });
+            });
+
+            // Подсвечиваем текущую тему, если есть
+            if (this.currentTopicId) {
+                this.highlightSelectedTopic();
+            }
+        }
+    }
+
+    const baseUrl="http://localhost:8081";
+
+    const modelName="gemma3:270m";
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const topicManager = new TopicManager();
+
+          // Управление панелью тем
+        document.getElementById('toggle-topics').addEventListener('click', function() {
+            document.getElementById('topics-panel').classList.add('open');
+        });
+
+        document.getElementById('close-topics').addEventListener('click', function() {
+            document.getElementById('topics-panel').classList.remove('open');
+        });
+
+        // Создание новой темы
+        document.getElementById('new-topic-btn').addEventListener('click', function() {
+            const title = prompt('Введите название новой темы:');
+            if (title && title.trim()) {
+             topicManager.createTopic(title.trim());
+            }
+
+        });
+
+         // Закрытие панели по клику вне ее
+        document.addEventListener('click', function(event) {
+            const topicsPanel = document.getElementById('topics-panel');
+            const toggleBtn = document.getElementById('toggle-topics');
+
+            if (topicsPanel.classList.contains('open') &&
+                !topicsPanel.contains(event.target) &&
+                !toggleBtn.contains(event.target)) {
+                topicsPanel.classList.remove('open');
+            }
+        });
+
+        const bodyInput = document.getElementById('body');
+        const sendBtn = document.getElementById('send-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const output = document.getElementById('output-content');
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+        let controller = null;
+        let isStreaming = false;
+
+
+        // Функция для обновления статуса подключения
+        function updateConnectionStatus(status) {
+            statusIndicator.className = 'status-indicator';
+
+            switch(status) {
+                case 'connected':
+                    statusIndicator.classList.add('status-connected');
+                    statusText.textContent = 'Подключено (получение данных...)';
+                    break;
+                case 'connecting':
+                    statusIndicator.classList.add('status-connecting');
+                    statusText.textContent = 'Подключение...';
+                    break;
+                case 'error':
+                    statusIndicator.classList.add('status-error');
+                    statusText.textContent = 'Ошибка подключения';
+                    break;
+                default:
+                    statusIndicator.classList.add('status-disconnected');
+                    statusText.textContent = 'Не подключено';
+                    break;
+            }
+        }
+
+        // Функция для добавления сообщения в вывод
+        function addOutputMessage(message, type = 'info') {
+            // Удаляем placeholder, если он есть
+            const placeholder = output.querySelector('.output-placeholder');
+            if (placeholder) {
+                output.removeChild(placeholder);
+            }
+
+            const messageElement = document.createElement('div');
+
+
+            const timestamp = new Date().toLocaleTimeString();
+
+            let statusClass = 'status-info';
+            if (type === 'success') statusClass = 'status-success';
+            if (type === 'error') statusClass = 'status-error';
+            if (type === 'message') statusClass = 'status-prompt';
+            messageElement.className = statusClass;
+
+
+            messageElement.textContent += message;
+
+            const lastChildElement = output.lastElementChild;
+
+
+            output.appendChild(messageElement);
+            output.scrollTop = output.scrollHeight;
+        }
+
+
+
+        // Функция для отправки запроса
+        async function sendRequest() {
+            let aiResponse='';
+
+            if (isStreaming) {
+                addOutputMessage('Уже выполняется запрос. Дождитесь завершения.', 'error');
+                return;
+            }
+            if(!bodyInput.value)
+                return
+
+            if(topicManager.currentTopicId==null)
+            {
+                alert('Пожалуйста, выберите или создайте тему сначала!');
+                return;
+            }
+
+            const method = "POST";
+            const role = "user";
+
+
+
+            let message={
+              role: role,
+              content: bodyInput.value
+            };
+            topicManager.createTopicMessage(message);
+            topicManager.addUserMessage(message.content);
+
+            console.log(topicManager.currentTopicMessages);
+
+            topicManager.currentTopicMessages.push(message);
+            let userRequest={
+                model: modelName,
+                messages: topicManager.currentTopicMessages
+            };
+
+
+
+
+            // Сбрасываем предыдущий контроллер, если есть
+            if (controller) {
+                controller.abort();
+            }
+
+            // Создаем новый AbortController для возможности отмены запроса
+            controller = new AbortController();
+            const signal = controller.signal;
+
+            isStreaming = true;
+            sendBtn.disabled = true;
+            stopBtn.disabled = false;
+            updateConnectionStatus('connecting');
+
+
+            bodyInput.value='';
+
+
+            try {
+                const response = await fetch(baseUrl+'/api/chats', {
+                    method: method,
+                    headers: {
+                                'Content-Type': 'application/json'
+                              },
+                    body: JSON.stringify(userRequest),
+                    signal: signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                updateConnectionStatus('connected');
+
+                // Обрабатываем потоковый ответ
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                const messageDiv=document.createElement('div');
+                messageDiv.className='ai-message';
+
+                const messageHeader = document.createElement('div');
+                messageHeader.className = 'message-header';
+                messageHeader.textContent = 'Нейросеть';
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message-content';
+                messageDiv.appendChild(messageHeader);
+                messageDiv.appendChild(messageElement);
+
+                output.appendChild(messageDiv);
+
+                while (true) {
+                    const { done, value } = await reader.read();
+
+
+                    // Декодируем полученные данные
+                    let chunk = decoder.decode(value, { stream: true });
+                    // Разделяем данные по строкам (если сервер отправляет несколько JSON объектов)
+
+                    if(chunk[0]==",")
+                    {
+                       chunk= chunk.slice(1);
+                       chunk="["+chunk;
+                    }
+                    if(chunk[chunk.length-1]==",")
+                    {
+                        chunk= chunk.slice(0,chunk.length-1);
+
+                    }
+                     if(chunk[chunk.length-1]!="]")
+                    {
+                     chunk=chunk+"]";
+                    }
+
+                       try {
+                        chunk=JSON.parse(chunk);
+                        }
+                    catch (e) {
+                         addOutputMessage(chunk, 'info');
+                        }
+
+                    for (const line of chunk) {
+                        aiResponse+=line.message.content;
+                        messageElement.textContent+= line.message.content;
+                        output.scrollTop = output.scrollHeight;
+                    }
+                    if(chunk[chunk.length-1].done==true)
+                    {
+                        break;
+                    }
+
+                }
+
+             message={
+              role: 'assistant',
+              content: aiResponse
+            };
+
+            topicManager.createTopicMessage(message);
+            topicManager.currentTopicMessages.push(message);
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    addOutputMessage('Запрос отменен', 'info');
+                } else {
+                    addOutputMessage(`Ошибка: ${error.message}`, 'error');
+                }
+            } finally {
+                isStreaming = false;
+                sendBtn.disabled = false;
+                stopBtn.disabled = true;
+                updateConnectionStatus('disconnected');
+                controller = null;
+            }
+        }
+
+        // Функция для остановки запроса
+        function stopRequest() {
+            if (controller) {
+                controller.abort();
+                addOutputMessage('Запрос остановлен', 'info');
+            }
+        }
+
+        // Функция для очистки вывода
+        function clearOutput() {
+            topicManager.currentTopicMessages=[];
+            const outputContent = document.getElementById('output-content');
+            outputContent.innerHTML = '';
+            outputContent.innerHTML = '<div class="output-placeholder">Ответ от сервера появится здесь...</div>';
+        }
+
+        // Назначаем обработчики событий
+        sendBtn.addEventListener('click', sendRequest);
+        stopBtn.addEventListener('click', stopRequest);
+        clearBtn.addEventListener('click', clearOutput);
+
+        // Добавляем обработчик для отправки по Enter в поле URL
+        bodyInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendRequest();
+            }
+        });
+
+
+    });
+</script>
+</body>
+</html>

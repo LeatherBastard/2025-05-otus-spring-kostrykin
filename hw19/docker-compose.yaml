@@ -1,0 +1,7 @@
+
+include:
+  - path: ./ollama-ai/docker-compose.yaml
+  - path: ./ollama-security/docker-compose.yaml
+  - path: ./ollama-ui/docker-compose.yaml
+  - path: ./ollama-data/docker-compose.yaml
+
