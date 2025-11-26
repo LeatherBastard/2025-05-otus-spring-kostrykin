@@ -14,10 +14,13 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class Message {
     @Id
     private String id;
+
     @Field(name = "topicId")
     private String topicId;
+
     @Field(name = "role")
     private String role;
+
     @Field(name = "content")
     private String content;
 

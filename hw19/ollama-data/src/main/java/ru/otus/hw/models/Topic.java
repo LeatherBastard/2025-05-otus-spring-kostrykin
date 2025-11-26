@@ -14,13 +14,15 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class Topic {
     @Id
     private String id;
+
     @Field(name = "userId")
     private String userId;
-    @Field(name = "name")
-    private String name;
 
-    public Topic(String userId, String name) {
+    @Field(name = "name")
+    private String title;
+
+    public Topic(String userId, String title) {
         this.userId = userId;
-        this.name = name;
+        this.title = title;
     }
 }

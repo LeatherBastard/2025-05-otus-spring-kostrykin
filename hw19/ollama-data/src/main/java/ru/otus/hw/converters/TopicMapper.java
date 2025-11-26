@@ -7,6 +7,6 @@ import ru.otus.hw.models.Topic;
 @Component
 public class TopicMapper {
     public TopicDto topicToDto(Topic topic) {
-        return new TopicDto(topic.getId(), topic.getName());
+        return new TopicDto(topic.getId(), topic.getTitle());
     }
 }

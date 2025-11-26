@@ -5,13 +5,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.otus.hw.models.Message;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequest {
     private String model;
-    private ArrayList<Message> messages;
+
+    private List<Message> messages;
+
     private Boolean stream;
 }

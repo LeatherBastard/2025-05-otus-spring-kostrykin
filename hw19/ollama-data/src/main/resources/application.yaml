@@ -1,9 +1,11 @@
+cors:
+  url: http://localhost:8081
 server:
   port: 8082
+jwt:
+  secret: asdSf312312dasdas3413434qdasdq2341323cvcnghmhlkuiloihmgvb
 spring:
   data:
-    rest:
-      base-path: /api
     mongodb:
       host: localhost
       port: 27017

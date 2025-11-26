@@ -1,7 +1,7 @@
 package ru.otus.hw.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,13 +15,13 @@ import ru.otus.hw.dto.message.MessageDto;
 import ru.otus.hw.services.MessageService;
 
 @RestController
-@RequestMapping("/message")
+@RequestMapping("api/messages")
 @RequiredArgsConstructor
 public class MessageController {
     private final MessageService messageService;
 
     @PostMapping
-    public Mono<MessageDto> addMessage(@RequestBody CreateMessageDto messageDto) {
+    public Mono<MessageDto> addMessage(@RequestBody @Valid CreateMessageDto messageDto) {
         return messageService.insertMessage(messageDto);
     }
 

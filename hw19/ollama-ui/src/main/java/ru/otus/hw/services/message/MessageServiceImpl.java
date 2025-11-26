@@ -18,8 +18,9 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Mono<MessageDto> insertMessage(CreateMessageDto messageDto) {
-        return webClient.post().uri("api/message")
+    public Mono<MessageDto> insertMessage(String token, CreateMessageDto messageDto) {
+        return webClient.post().uri("api/messages")
+                .cookie("AUTH_TOKEN", token)
                 .bodyValue(messageDto)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
@@ -27,13 +28,15 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Flux<MessageDto> findMessagesByTopicId(String topicId) {
+    public Flux<MessageDto> findMessagesByTopicId(String token, String topicId) {
         return webClient.get().uri(
                         uriBuilder -> uriBuilder
-                                .path("api/message")
+                                .path("api/messages")
                                 .queryParam("topicId", topicId)
                                 .build()
-                ).retrieve()
+                )
+                .cookie("AUTH_TOKEN", token)
+                .retrieve()
                 .bodyToFlux(MessageDto.class);
     }
 }

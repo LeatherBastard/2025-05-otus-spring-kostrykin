@@ -29,6 +29,125 @@
             display: flex;
             flex-direction: column;
             height: calc(100vh - 40px);
+            position: relative;
+        }
+
+        /* Стили для панели тем */
+        .topics-panel {
+            position: fixed;
+            left: -350px;
+            top: 20px;
+            bottom: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: left 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topics-panel.open {
+            left: 20px;
+        }
+
+        .topics-header {
+            background: #4a5568;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .topics-header h2 {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .close-topics {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .topics-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .topic-item {
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .topic-item:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .topic-item.active {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .topic-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+
+        .topic-date {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .topics-actions {
+            padding: 15px 20px;
+            border-top: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .btn-new-topic {
+            width: 100%;
+            background: #48bb78;
+        }
+
+        .btn-new-topic:hover {
+            background: #38a169;
+        }
+
+        .toggle-topics {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         header {
@@ -37,6 +156,7 @@
             padding: 20px;
             text-align: center;
             flex-shrink: 0;
+            padding-left: 80px;
         }
 
         h1 {
@@ -49,7 +169,7 @@
             font-size: 14px;
         }
 
-        .main-content {
+        .content {
             display: flex;
             flex-direction: column;
             flex: 1;
@@ -65,7 +185,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            min-height: 500px;
+            min-height: 0;
             overflow: hidden;
         }
 
@@ -168,6 +288,62 @@
             margin-right: 8px;
         }
 
+        .message {
+        margin-bottom: 16px;
+        padding: 12px;
+        border-radius: 8px;
+        max-width: 85%;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        line-height: 1.5;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-message {
+            background: #f7fafc;
+            color: #2d3748;
+            border: 1px solid #e2e8f0;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-header {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .message-content {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+
+        /* Иконки для сообщений */
+        .message-header::before {
+            font-size: 14px;
+        }
+
+        .user-message .message-header::before {
+            content: "👤";
+        }
+
+        .ai-message .message-header::before {
+            content: "🤖";
+        }
+
+
         .output-container {
             flex: 1;
             border: 1px solid #4a5568;
@@ -186,6 +362,7 @@
             padding: 15px;
             flex: 1;
             min-height: min-content;
+            overflow-y: auto;
         }
 
         .output-placeholder {
@@ -236,6 +413,10 @@
             color: white;
         }
 
+        #status-text{
+            color: black;
+        }
+
         .controls {
             display: flex;
             gap: 10px;
@@ -273,6 +454,7 @@
             height: 10px;
             border-radius: 50%;
             margin-right: 8px;
+			color: red
         }
 
         .status-connected {
@@ -329,33 +511,41 @@
         }
 
         /* Стили для скроллбара */
-        .output-container::-webkit-scrollbar {
+        .output-container::-webkit-scrollbar,
+        .topics-content::-webkit-scrollbar {
             width: 8px;
         }
 
-        .output-container::-webkit-scrollbar-track {
+        .output-container::-webkit-scrollbar-track,
+        .topics-content::-webkit-scrollbar-track {
             background: #2d3748;
             border-radius: 4px;
         }
 
-        .output-container::-webkit-scrollbar-thumb {
+        .output-container::-webkit-scrollbar-thumb,
+        .topics-content::-webkit-scrollbar-thumb {
             background: #4a5568;
             border-radius: 4px;
         }
 
-        .output-container::-webkit-scrollbar-thumb:hover {
+        .output-container::-webkit-scrollbar-thumb:hover,
+        .topics-content::-webkit-scrollbar-thumb:hover {
             background: #718096;
         }
 
-        /* Убираем скролл у input-section */
-        .input-section {
-            overflow: visible;
+        .topics-content::-webkit-scrollbar-track {
+            background: #f7fafc;
         }
 
         @media (max-width: 768px) {
             .container {
                 height: auto;
                 min-height: calc(100vh - 40px);
+            }
+
+            .topics-panel {
+                width: 300px;
+                left: -300px;
             }
 
             .input-row {
@@ -389,23 +579,43 @@
 </head>
 <body>
 <div class="container">
+    <!-- Кнопка открытия панели тем -->
+    <button class="toggle-topics" id="toggle-topics">
+        <i>📚</i> Темы
+    </button>
+
+    <!-- Панель тем -->
+    <div class="topics-panel" id="topics-panel">
+        <div class="topics-header">
+            <h2>Темы чатов</h2>
+            <button class="close-topics" id="close-topics">×</button>
+        </div>
+        <div class="topics-content" id="topics-content">
+            <!-- Темы будут загружаться здесь -->
+        </div>
+        <div class="topics-actions">
+            <button class="btn-new-topic" id="new-topic-btn">
+                <i>➕</i> Новая тема
+            </button>
+        </div>
+    </div>
+
     <header>
         <h1>Ollama Chat Bot</h1>
         <div class="subtitle">Отправка запросов и получение ответов от нейросети</div>
     </header>
 
     <div class="content">
-
         <div class="output-section">
             <h2 class="section-title">
                 <i>📥</i> Ответ
             </h2>
 
             <div class="output-container" id="output">
-                <div class="output-placeholder">Ответ от сервера появится здесь...</div>
+                <div class="output-content" id="output-content">
+                    <div class="output-placeholder">Ответ от сервера появится здесь...</div>
+                </div>
             </div>
-
-
         </div>
 
         <div class="input-section">
@@ -436,25 +646,301 @@
                 <span id="status-text">Не подключено</span>
             </div>
         </div>
-
-
     </div>
-
-
 </div>
 <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
 <script>
+
+
+    class TopicManager {
+        constructor() {
+            this.topics = [];
+            this.currentTopicId = null;
+            this.currentTopicMessages = [];
+            this.init();
+        }
+
+        async init() {
+            await this.loadtopics();
+            this.rendertopics();
+        }
+
+        // Загрузка тем (в реальном приложении - запрос к API)
+        async loadtopics() {
+            try {
+
+               const response = await fetch(baseUrl+'/api/topics',{
+                 credentials: 'include'
+               });
+
+                const contentLength = response.headers.get('content-length');
+                if (contentLength === '0') {
+                 this.topics = [];
+                }
+                else
+                {
+                  this.topics = await response.json();
+                }
+
+
+                // Временно используем моковые данные
+                console.log('Темы загружены:', this.topics);
+            } catch (error) {
+                console.error('Ошибка загрузки тем:', error);
+                this.topics = [];
+            }
+        }
+
+        // Создание новой темы
+        async createTopic(title) {
+            try {
+               const params=new URLSearchParams();
+               params.append("title",title);
+               const response = await fetch(baseUrl+`/api/topics?${params}`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' }
+                });
+                 const newTopic = await response.json();
+
+                this.topics.unshift(newTopic);
+                this.rendertopics();
+                await this.selectTopic(newTopic.id);
+                return newTopic;
+            } catch (error) {
+                console.error('Ошибка создания темы:', error);
+            }
+        }
+
+        // Выбор темы
+        async selectTopic(topicId) {
+            this.currentTopicId = topicId;
+            const topic = this.topics.find(t => t.id === topicId);
+
+            if (topic) {
+                console.log('Выбрана тема:', topic);
+                // Загрузка сообщений выбранной темы
+                await this.loadTopicMessages(topicId);
+                this.highlightSelectedTopic();
+                this.updateUIForTopic(topic);
+            }
+        }
+
+        addUserMessage(text) {
+          this.addMessage(text, 'user');
+        }
+
+        // Функция для добавления сообщения нейросети
+        addAIMessage(text) {
+            this.addMessage(text, 'ai');
+        }
+
+        // Основная функция добавления сообщения
+        addMessage(text, type) {
+            // Убираем плейсхолдер если он есть
+             const output = document.getElementById('output-content');
+
+            const placeholder = output.querySelector('.output-placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
+
+            // Создаем элемент сообщения
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+
+            // Создаем заголовок сообщения
+            const messageHeader = document.createElement('div');
+            messageHeader.className = 'message-header';
+            messageHeader.textContent = type === 'user' ? 'Пользователь' : 'Нейросеть';
+
+            // Создаем контент сообщения
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = text;
+
+            // Собираем сообщение
+            messageDiv.appendChild(messageHeader);
+            messageDiv.appendChild(messageContent);
+
+            // Добавляем в контейнер
+            output.appendChild(messageDiv);
+
+            // Прокручиваем к последнему сообщению
+            output.scrollTop = output.scrollHeight;
+        }
+
+
+
+
+        // Загрузка сообщений темы
+        async loadTopicMessages(topicId) {
+            try {
+               this.currentTopicMessages=[];
+               const params=new URLSearchParams();
+               params.append("topicId",topicId);
+               const response = await fetch(baseUrl+`/api/messages?${params}`,
+                   {
+                        credentials: 'include'
+                   });
+               const messages = await response.json();
+               this.currentTopicMessages=messages;
+                // Очистка текущего чата
+                const outputContent = document.getElementById('output-content');
+                outputContent.innerHTML = '';
+
+
+                if (messages && messages.length > 0) {
+                    messages.forEach(msg => this.addMessageToChat(msg));
+                } else {
+                    outputContent.innerHTML = '<div class="output-placeholder">Начните диалог...</div>';
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки сообщений:', error);
+            }
+        }
+
+         //Создание нового сообщения
+          async createTopicMessage(message) {
+              try {
+
+              const currentTopicId=this.currentTopicId;
+               const insertMessage={
+                topicId: currentTopicId,
+                role: message.role,
+                content: message.content
+            };
+               const response = await fetch(baseUrl+`/api/messages`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(insertMessage),
+                });
+
+
+            } catch (error) {
+                console.error('Ошибка создания сообщения:', error);
+            }
+        }
+
+        // Добавление сообщения в чат
+        addMessageToChat(message) {
+
+            const outputContent = document.getElementById('output-content');
+            const placeholder = outputContent.querySelector('.output-placeholder');
+
+            if (placeholder) {
+                placeholder.remove();
+            }
+            if(message.role=='user')
+            {
+                this.addUserMessage(message.content);
+            }
+            else
+            {
+                this.addAIMessage(message.content);
+            }
+
+
+
+        }
+
+        // Обновление UI для выбранной темы
+        updateUIForTopic(topic) {
+            document.querySelector('header h1').textContent = topic.title;
+            document.getElementById('topics-panel').classList.remove('open');
+        }
+
+        // Подсветка выбранной темы
+        highlightSelectedTopic() {
+            document.querySelectorAll('.topic-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            const selectedItem = document.querySelector(`[data-topic-id="${this.currentTopicId}"]`);
+            if (selectedItem) {
+                selectedItem.classList.add('active');
+            }
+        }
+
+        // Рендеринг списка тем
+        rendertopics() {
+            const topicsContent = document.getElementById('topics-content');
+
+            if (this.topics.length === 0) {
+                topicsContent.innerHTML = '<div style="text-align: center; color: #718096; padding: 20px;">Темы не найдены</div>';
+                return;
+            }
+
+            topicsContent.innerHTML = this.topics.map(topic => `
+                <div class="topic-item" data-topic-id="${topic.id}">
+                    <div class="topic-title">${topic.title}</div>
+                    <div class="topic-date">Создано: ${topic.createdAt}</div>
+                </div>
+            `).join('');
+
+            // Добавляем обработчики клика
+            topicsContent.querySelectorAll('.topic-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const topicId = item.dataset.topicId;
+                    this.selectTopic(topicId);
+                });
+            });
+
+            // Подсвечиваем текущую тему, если есть
+            if (this.currentTopicId) {
+                this.highlightSelectedTopic();
+            }
+        }
+    }
+
+    const baseUrl="http://localhost:8081";
+
+    const modelName="gemma3:270m";
+
     document.addEventListener('DOMContentLoaded', function() {
+        const topicManager = new TopicManager();
+
+          // Управление панелью тем
+        document.getElementById('toggle-topics').addEventListener('click', function() {
+            document.getElementById('topics-panel').classList.add('open');
+        });
+
+        document.getElementById('close-topics').addEventListener('click', function() {
+            document.getElementById('topics-panel').classList.remove('open');
+        });
+
+        // Создание новой темы
+        document.getElementById('new-topic-btn').addEventListener('click', function() {
+            const title = prompt('Введите название новой темы:');
+            if (title && title.trim()) {
+             topicManager.createTopic(title.trim());
+            }
+
+        });
+
+         // Закрытие панели по клику вне ее
+        document.addEventListener('click', function(event) {
+            const topicsPanel = document.getElementById('topics-panel');
+            const toggleBtn = document.getElementById('toggle-topics');
+
+            if (topicsPanel.classList.contains('open') &&
+                !topicsPanel.contains(event.target) &&
+                !toggleBtn.contains(event.target)) {
+                topicsPanel.classList.remove('open');
+            }
+        });
+
         const bodyInput = document.getElementById('body');
         const sendBtn = document.getElementById('send-btn');
         const clearBtn = document.getElementById('clear-btn');
         const stopBtn = document.getElementById('stop-btn');
-        const output = document.getElementById('output');
+        const output = document.getElementById('output-content');
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
-        let messages = [];
         let controller = null;
         let isStreaming = false;
+
 
         // Функция для обновления статуса подключения
         function updateConnectionStatus(status) {
@@ -509,6 +995,8 @@
             output.scrollTop = output.scrollHeight;
         }
 
+
+
         // Функция для отправки запроса
         async function sendRequest() {
             let aiResponse='';
@@ -517,23 +1005,33 @@
                 addOutputMessage('Уже выполняется запрос. Дождитесь завершения.', 'error');
                 return;
             }
+            if(!bodyInput.value)
+                return
 
-            const url = "http://localhost:8081/api";
+            if(topicManager.currentTopicId==null)
+            {
+                alert('Пожалуйста, выберите или создайте тему сначала!');
+                return;
+            }
+
             const method = "POST";
             const role = "user";
+
 
 
             let message={
               role: role,
               content: bodyInput.value
             };
+            topicManager.createTopicMessage(message);
+            topicManager.addUserMessage(message.content);
 
-            console.log(messages);
+            console.log(topicManager.currentTopicMessages);
 
-            messages.push(message);
+            topicManager.currentTopicMessages.push(message);
             let userRequest={
-                model: "gemma3:270m",
-                messages
+                model: modelName,
+                messages: topicManager.currentTopicMessages
             };
 
 
@@ -554,12 +1052,11 @@
             updateConnectionStatus('connecting');
 
 
-            addOutputMessage(bodyInput.value.trim(), 'message');
             bodyInput.value='';
 
 
             try {
-                const response = await fetch(url, {
+                const response = await fetch(baseUrl+'/api/chats', {
                     method: method,
                     headers: {
                                 'Content-Type': 'application/json'
@@ -575,11 +1072,22 @@
                 updateConnectionStatus('connected');
 
                 // Обрабатываем потоковый ответ
+
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
+
+                const messageDiv=document.createElement('div');
+                messageDiv.className='ai-message';
+
+                const messageHeader = document.createElement('div');
+                messageHeader.className = 'message-header';
+                messageHeader.textContent = 'Нейросеть';
                 const messageElement = document.createElement('div');
-                messageElement.className = 'response-line';
-                output.appendChild(messageElement);
+                messageElement.className = 'message-content';
+                messageDiv.appendChild(messageHeader);
+                messageDiv.appendChild(messageElement);
+
+                output.appendChild(messageDiv);
 
                 while (true) {
                     const { done, value } = await reader.read();
@@ -628,11 +1136,8 @@
               content: aiResponse
             };
 
-            messages.push(message);
-
-
-
-
+            topicManager.createTopicMessage(message);
+            topicManager.currentTopicMessages.push(message);
 
             } catch (error) {
                 if (error.name === 'AbortError') {
@@ -659,7 +1164,10 @@
 
         // Функция для очистки вывода
         function clearOutput() {
-            output.innerHTML = '<div class="output-placeholder">Ответ от сервера появится здесь...</div>';
+            topicManager.currentTopicMessages=[];
+            const outputContent = document.getElementById('output-content');
+            outputContent.innerHTML = '';
+            outputContent.innerHTML = '<div class="output-placeholder">Ответ от сервера появится здесь...</div>';
         }
 
         // Назначаем обработчики событий

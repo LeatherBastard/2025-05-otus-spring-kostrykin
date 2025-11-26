@@ -24,15 +24,15 @@ public class OllamaServiceImpl implements OllamaService {
 
     @Override
     public Flux<ModelResponse> sendMessage(UserRequest request) {
-        return webClient.post().uri("/api/chat").
-                bodyValue(request)
+        return webClient.post().uri("/api/chat")
+                .bodyValue(request)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToFlux(ModelResponse.class)
-                .doOnSubscribe(subscription -> log.info("Начало получения потоковых данных"))
-                .doOnNext(response -> log.info("Получена часть сообщения: {}", response.getMessage().getContent()))
-                .doOnComplete(() -> log.info("Поток данных завершен"))
-                .doOnError(error -> log.error("Ошибка при получении данных: {}", error.getMessage()));
+                .doOnSubscribe(subscription -> log.info("Getting stream data"))
+                .doOnNext(response -> log.info("Stream data part: {}", response.getMessage().getContent()))
+                .doOnComplete(() -> log.info("Stream data finished"))
+                .doOnError(error -> log.error("Error getting stream data: {}", error.getMessage()));
     }
 
 }

@@ -6,7 +6,8 @@ import ru.otus.hw.dto.message.CreateMessageDto;
 import ru.otus.hw.dto.message.MessageDto;
 
 public interface MessageService {
-    Mono<MessageDto> insertMessage(CreateMessageDto messageDto);
-    Flux<MessageDto> findMessagesByTopicId(String topicId);
+    Mono<MessageDto> insertMessage(String token, CreateMessageDto messageDto);
+
+    Flux<MessageDto> findMessagesByTopicId(String token, String topicId);
 
 }

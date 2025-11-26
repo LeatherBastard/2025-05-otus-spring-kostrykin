@@ -13,7 +13,7 @@ import ru.otus.hw.dto.ollama.UserRequest;
 import ru.otus.hw.services.ollama.OllamaService;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("api/chats")
 @RequiredArgsConstructor
 @Log4j2
 public class OllamaController {

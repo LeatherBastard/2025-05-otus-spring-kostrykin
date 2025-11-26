@@ -12,7 +12,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ModelResponse {
     private String model;
+
     private LocalDateTime createdAt;
+
     private Message message;
+
     private boolean done;
 }

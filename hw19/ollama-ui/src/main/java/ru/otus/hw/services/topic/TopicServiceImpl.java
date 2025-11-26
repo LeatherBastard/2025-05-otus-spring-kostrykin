@@ -19,22 +19,29 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public Mono<TopicDto> insertTopic(CreateTopicDto topicDto) {
-        return webClient.post().uri("api/topic")
-                .bodyValue(topicDto)
+    public Mono<TopicDto> insertTopic(String token, CreateTopicDto topicDto) {
+        return webClient.post().uri(
+                        uriBuilder -> uriBuilder
+                                .path("api/topics")
+                                .queryParam("userId", topicDto.userId())
+                                .queryParam("title", topicDto.title())
+                                .build())
+                .cookie("AUTH_TOKEN", token)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(TopicDto.class);
     }
 
     @Override
-    public Flux<TopicDto> findTopicsByUserId(String userId) {
+    public Flux<TopicDto> findTopicsByUserId(String token, String userId) {
         return webClient.get().uri(
-                uriBuilder -> uriBuilder
-                        .path("api/topic")
-                        .queryParam("userId", userId)
-                        .build()
-                ).retrieve()
+                        uriBuilder -> uriBuilder
+                                .path("api/topics")
+                                .queryParam("userId", userId)
+                                .build()
+                )
+                .cookie("AUTH_TOKEN", token)
+                .retrieve()
                 .bodyToFlux(TopicDto.class);
     }
 }

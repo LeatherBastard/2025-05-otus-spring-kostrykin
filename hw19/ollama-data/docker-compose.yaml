@@ -1,5 +1,22 @@
 services:
-  ollama-db:
+  ollama-data-service:
+    build:
+      dockerfile: Dockerfile
+    container_name: ollama-data-container
+    ports:
+      - "8082:8082"
+    depends_on:
+      - ollama-data-db
+    environment:
+      - SPRING_DATA_MONGODB_HOST=ollama-data-db
+      - SPRING_DATA_MONGODB_PORT=27017
+      - SPRING_DATA_MONGODB_DATABASE=ollama-db
+      - CORS_URL=http://localhost:8081
+      - JWT_SECRET=asdSf312312dasdas3413434qdasdq2341323cvcnghmhlkuiloihmgvb
+
+
+
+  ollama-data-db:
     image: mongo:latest
     container_name: mongodb
     ports:

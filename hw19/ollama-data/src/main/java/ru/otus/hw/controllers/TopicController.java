@@ -2,9 +2,9 @@ package ru.otus.hw.controllers;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,18 +15,21 @@ import ru.otus.hw.dto.topic.TopicDto;
 import ru.otus.hw.services.TopicService;
 
 @RestController
-@RequestMapping("/topic")
+@RequestMapping("api/topics")
 @RequiredArgsConstructor
 public class TopicController {
     private final TopicService topicService;
 
     @PostMapping
-    public Mono<TopicDto> addMessage(@RequestBody CreateTopicDto topicDto) {
-        return topicService.insertTopic(topicDto);
+    public Mono<TopicDto> addTopic(Authentication authentication, @RequestParam  String title) {
+        String userId = (String) authentication.getDetails();
+        return topicService.insertTopic(new CreateTopicDto(userId, title));
     }
 
     @GetMapping
-    public Flux<TopicDto> getTopicsByUserId(@RequestParam String userId) {
+    public Flux<TopicDto> getTopicsByUserId(Authentication authentication) {
+        String userId = (String) authentication.getDetails();
         return topicService.findAllByUserId(userId);
     }
+
 }

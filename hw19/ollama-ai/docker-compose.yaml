@@ -1,0 +1,25 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./init-models.sh:/init-models.sh
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+
+  model-loader:
+    image: curlimages/curl:latest
+    container_name: model_loader
+    depends_on:
+     - ollama
+    volumes:
+      - ./init-models.sh:/init-models.sh
+    entrypoint: ["/bin/sh", "/init-models.sh"]
+    restart: "no"
+
+volumes:
+  ollama_data:

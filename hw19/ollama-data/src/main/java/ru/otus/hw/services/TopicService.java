@@ -8,5 +8,5 @@ import ru.otus.hw.dto.topic.TopicDto;
 public interface TopicService {
     Flux<TopicDto> findAllByUserId(String userId);
 
-    Mono<TopicDto> insertTopic(CreateTopicDto createTopicDto);
+    Mono<TopicDto> insertTopic(CreateTopicDto topicDto);
 }
