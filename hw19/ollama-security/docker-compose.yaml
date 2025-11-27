@@ -1,0 +1,31 @@
+services:
+  ollama-security-service:
+    build:
+      dockerfile: Dockerfile
+    container_name: ollama-security-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ollama-users-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ollama-users-db:5432/ollama-users
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=password
+      - REDIRECTION_URL=http://localhost:8081
+      - JWT_EXPIRATION=604800
+      - JWT_SECRET=asdSf312312dasdas3413434qdasdq2341323cvcnghmhlkuiloihmgvb
+
+
+  ollama-users-db:
+    image: postgres:14-alpine
+    container_name: ollama-users-container
+    ports:
+      - "6541:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=ollama-users
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+volumes:
+  pgdata:

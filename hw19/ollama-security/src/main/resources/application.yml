@@ -1,0 +1,25 @@
+server:
+  port: 8080
+redirection:
+  url: http://localhost:8081
+jwt:
+  expiration: 604800
+  secret: asdSf312312dasdas3413434qdasdq2341323cvcnghmhlkuiloihmgvb
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:6541/ollama-users
+    username: admin
+    password: password
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    location: classpath:db/migration
+  sql:
+    init:
+      mode: never
